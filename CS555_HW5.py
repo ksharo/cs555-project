@@ -25,15 +25,16 @@ MONTHS = {
     "DEC": '12'
     }
 
-INDIVIDUALS = {} # dictionary of an individual's id matching with their data
-FAMILIES = {} # dictionary of a family id matching with their data
+INDIVIDUALS = {}  # dictionary of an individual's id matching with their data
+FAMILIES = {}  # dictionary of a family id matching with their data
 
 def parseFile(file):
     '''Parses a GEDCOM file based on the specifications given in the
         homework description'''
+    errors = ""
     # reset the dictionaries
-    INDIVIDUALS = {}
-    FAMILIES = {}
+    # INDIVIDUALS = {}
+    # FAMILIES = {}
     # individuals fields
     name = ''
     sex = ''
@@ -79,6 +80,7 @@ def parseFile(file):
             if idNum != '':
                 INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
             idNum = args.replace('@', '')
+            errors += checkUS22(idNum, 0)
             name = ''
             sex = ''
             birth = ''
@@ -91,6 +93,7 @@ def parseFile(file):
             if fam != '':
                 FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
             fam = args.replace('@', '')
+            errors += checkUS22(fam, 1)
             marr = ''
             husb = ''
             wife = ''
@@ -161,7 +164,8 @@ def parseFile(file):
     printIndOutput(INDIVIDUALS)
     print("Families")
     printFamOutput(FAMILIES, INDIVIDUALS)
-    checkUS13(FAMILIES, INDIVIDUALS)
+    errors += checkUS13(FAMILIES, INDIVIDUALS)
+    print(errors)
 
 
 def printIndOutput(records):
@@ -263,10 +267,18 @@ def checkUS13(families, inds):
                     continue
                 else:
                     errors += 'Error US13: Birth dates of ' + inds[children[j]].name.replace('/', '') + '(' + inds[children[j]].idNum + ') and ' + inds[children[i]].name.replace('/', '') + '(' + inds[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
-    print(errors)
     return errors
                 
-    
+def checkUS22(args, tag):
+    errors = ""
+    if tag:
+        if args in FAMILIES.keys():
+            errors += "Error US22: Family ID " + args + " already used.\n"
+    else:
+        if args in INDIVIDUALS.keys():
+            errors += "Error US22: Individual ID " + args + " already used.\n"
+    return errors
+
 class Record:
     ''' A record contains the id number of the individual with name 'name', their
         sex, birth date, death date, famc, and fams, for whatever is applicable'''
