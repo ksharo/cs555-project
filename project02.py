@@ -31,7 +31,10 @@ FAMILIES = {} # dictionary of a family id matching with their data
 def parseFile(file):
     '''Parses a GEDCOM file based on the specifications given in the
         homework description'''
+    # reset the dictionaries
     INDIVIDUALS = {}
+    FAMILIES = {}
+    # individuals fields
     name = ''
     sex = ''
     birth = ''
@@ -39,16 +42,20 @@ def parseFile(file):
     idNum = ''
     famc = []
     fams = []
+    # family fields
     fam = ''
     marr = ''
     husb = ''
     wife = ''
-    chil = ''
+    chil = []
     div = ''
+    # keep track of what the date in the next line is for
     nextBirth = False
     nextDeath = False
     nextMarr = False
     nextDiv = False
+
+    # iterate through every line in the file
     for line in file:
          # separate the line into a list of all words with spaces in between
         sections = line.split(" ")
@@ -67,10 +74,10 @@ def parseFile(file):
             for x in sections[2:]:
                 args += x + " "
         
-        # start new dictionary entry for each new indi num and reset
+        # start new dictionary entry for each new individual id and reset the relevant fields
         if tag == "INDI":
             if idNum != '':
-                INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams, fam, marr, husb, wife, chil, div)
+                INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
             idNum = args.replace('@', '')
             name = ''
             sex = ''
@@ -78,12 +85,18 @@ def parseFile(file):
             death = ''
             famc = []
             fams = []
-            fam = ''
+
+        # start new dictionary entry for each new family id and reset the relevant fields
+        if tag == "FAM":
+            if fam != '':
+                FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
+            fam = args.replace('@', '')
             marr = ''
             husb = ''
             wife = ''
-            chil = ''
+            chil = []
             div = ''
+            
 
         # set record fields for each tag
         if tag == "NAME":
@@ -98,6 +111,15 @@ def parseFile(file):
         if tag == "FAMS":
             fams.append(args.replace('@', '').replace(' ', ''))
 
+        if tag == "WIFE":
+            wife = args.replace('@', '').replace(' ', '')
+
+        if tag == "HUSB":
+            husb = args.replace('@', '').replace(' ', '')
+
+        if tag == "CHIL":
+            chil.append(args.replace('@', '').replace(' ', ''))
+            
         if tag == "BIRT":
             nextBirth = True
 
@@ -126,11 +148,19 @@ def parseFile(file):
             div = returnDate(args)
             nextDiv = False
 
-    # make sure the last record in the file is included
+    # make sure the last individual record in the file is included
     if idNum != '':
-        INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams, fam, marr, husb, wife, chil, div)
+        INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
+
+    # make sure the last family record in the file is included
+    if fam != '':
+        FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
+
     # print all records in table format
+    print("Individuals")
     printIndOutput(INDIVIDUALS)
+    print("Families")
+    printFamOutput(FAMILIES, INDIVIDUALS)
 
 
 def printIndOutput(records):
@@ -175,7 +205,33 @@ def printIndOutput(records):
         rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, child, spouse]
         indTable.add_row(rowToAdd)
     print(indTable)
-    
+
+def printFamOutput(families, inds):
+    famTable = PrettyTable()
+    famHeader = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
+    famTable.field_names = famHeader
+    for x in sorted (families.keys()):
+        # get the individual record
+        record = families[x]
+
+        # check if there has been a divorce
+        div = record.div
+        if div == '':
+            div = 'NA'
+
+        # get the children belonging to that family
+        children = 'NA'
+        if len(record.chil) > 0:
+            children = '{'
+            for c in record.chil:
+                children += "'" + c + "', "
+            # remove extra space and comma before ending bracket
+            children = children[:len(children)-2] + '}'
+        
+        # add the row to the table
+        rowToAdd = [record.fam, record.marr, div, record.husb, inds[record.husb].name, record.wife, inds[record.wife].name, children]
+        famTable.add_row(rowToAdd)
+    print(famTable)
 
 def returnDate(args):
     ''' creates a python date object out of the date information
@@ -191,9 +247,8 @@ def returnDate(args):
 
 class Record:
     ''' A record contains the id number of the individual with name 'name', their
-        sex, birth date, death date, famc, fams, fam, marriage date, husband,
-        wife, children, and divorce date, for whatever is applicable'''
-    def __init__(self, idNum, name, sex, birth, death, famc, fams, fam, marr, husb, wife, chil, div):
+        sex, birth date, death date, famc, and fams, for whatever is applicable'''
+    def __init__(self, idNum, name, sex, birth, death, famc, fams):
         self.idNum = idNum
         self.name = name
         self.sex = sex
@@ -201,6 +256,11 @@ class Record:
         self.death = death
         self.famc = famc
         self.fams = fams
+
+class Family:
+    ''' A family contains all relevant information about the family, including the family ID,
+        marriage date, husband, wife, children, and divorce date, for whatever is applicable '''
+    def __init__(self, fam, marr, husb, wife, chil, div):
         self.fam = fam
         self.marr = marr
         self.husb = husb
