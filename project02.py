@@ -26,6 +26,7 @@ MONTHS = {
     }
 
 INDIVIDUALS = {} # dictionary of an individual's id matching with their data
+FAMILIES = {} # dictionary of a family id matching with their data
 
 def parseFile(file):
     '''Parses a GEDCOM file based on the specifications given in the
@@ -36,8 +37,8 @@ def parseFile(file):
     birth = ''
     death = ''
     idNum = ''
-    famc = ''
-    fams = ''
+    famc = []
+    fams = []
     fam = ''
     marr = ''
     husb = ''
@@ -75,6 +76,14 @@ def parseFile(file):
             sex = ''
             birth = ''
             death = ''
+            famc = []
+            fams = []
+            fam = ''
+            marr = ''
+            husb = ''
+            wife = ''
+            chil = ''
+            div = ''
 
         # set record fields for each tag
         if tag == "NAME":
@@ -82,6 +91,12 @@ def parseFile(file):
 
         if tag == "SEX":
             sex = args
+
+        if tag == "FAMC":
+            famc.append(args.replace('@', '').replace(' ', ''))
+
+        if tag == "FAMS":
+            fams.append(args.replace('@', '').replace(' ', ''))
 
         if tag == "BIRT":
             nextBirth = True
@@ -123,7 +138,9 @@ def printIndOutput(records):
     indHeader = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
     indTable.field_names = indHeader
     for x in sorted (records.keys()):
+        # get the individual record
         record = records[x]
+        # calculate age and set death date or NA
         alive = True
         death = 'NA'
         today = date.today()
@@ -132,7 +149,30 @@ def printIndOutput(records):
             alive = False
             death = record.death
             age = record.death.year - record.birth.year - ((record.death.month, record.death.day) < (record.birth.month, record.birth.day))
-        rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, '-', '-']
+        # set child to family id or NA if not applicable
+        children = record.famc
+        if len(children) == 0:
+            child = 'NA'
+        else:
+            # format child record properly
+            child = '{'
+            for c in children:
+                child += "'" + c + "', "
+            # remove extra space and comma before ending bracket
+            child = child[:len(child)-2] + '}'
+        # set spouse to family id or NA if not applicable
+        spouses = record.fams
+        if len(spouses) == 0:
+            spouse = 'NA'
+        else:
+            # format child record properly
+            spouse = '{'
+            for s in spouses:
+                spouse += "'" + s + "', "
+            # remove extra space and comma before ending bracket
+            spouse = spouse[:len(spouse)-2] + '}'
+        # add the row to the table
+        rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, child, spouse]
         indTable.add_row(rowToAdd)
     print(indTable)
     
