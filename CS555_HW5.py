@@ -1,7 +1,7 @@
 '''
     Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
     Pledge: I pledge my honor that I have abided by the Stevens Honor System.
-    Description: CS 555 Project 03: Teamwork Begins
+    Description: CS 555 Homework 03: Pair Programming
 '''
 
 from datetime import date
@@ -161,14 +161,18 @@ def parseFile(file):
 
     # print all records in table format
     print("Individuals")
-    printIndOutput(INDIVIDUALS)
+    printIndOutput()
     print("Families")
-    printFamOutput(FAMILIES, INDIVIDUALS)
-    errors += checkUS13(FAMILIES, INDIVIDUALS)
+    printFamOutput()
+    print("\nErrors:")
+    errors += "\n" + checkUS02() + "\n"
+    errors += checkUS03() + "\n"
+    errors += checkUS13() + "\n"
     print(errors)
 
 
-def printIndOutput(records):
+def printIndOutput():
+    records = INDIVIDUALS
     indTable = PrettyTable()
     indHeader = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
     indTable.field_names = indHeader
@@ -211,7 +215,9 @@ def printIndOutput(records):
         indTable.add_row(rowToAdd)
     print(indTable)
 
-def printFamOutput(families, inds):
+def printFamOutput():
+    families = FAMILIES
+    inds = INDIVIDUALS
     famTable = PrettyTable()
     famHeader = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children']
     famTable.field_names = famHeader
@@ -250,26 +256,67 @@ def returnDate(args):
     fullDate = year + '-' + month + '-' + day
     return date.fromisoformat(fullDate)
 
-def checkUS13(families, inds):
+#### USER STORIES ####
+
+def checkUS02():
+    '''Checks the dictionary of records (initialized in parsefile) to find errors
+        where the individual has been recorded as having been married before being born'''
+    toReturn = ''
+    for x in FAMILIES:
+        mar = FAMILIES[x].marr
+        wifeBirth = INDIVIDUALS[FAMILIES[x].wife].birth
+        husbBirth= INDIVIDUALS[FAMILIES[x].husb].birth
+        if mar < wifeBirth:
+            pronoun = 'his' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'F' else 'their'
+            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].wife].name.replace('/', '') + "occurs after " + pronoun + " marriage date.\n"
+        if mar < husbBirth:
+            pronoun = 'his' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'F' else 'their'
+            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') +  "occurs after " + pronoun + " marriage date.\n"
+    return toReturn
+
+def checkUS03():
+    '''Checks the dictionary of records (initialized in parsefile) to find errors
+        where the individual has been recorded as having died before being born'''
+    toReturn = ''
+    for x in INDIVIDUALS:
+        record = INDIVIDUALS[x]
+        # if information is missing or the individual has not died, continue, no error.
+        if record.death == '' or record.birth == '':
+            continue
+        if record.death < record.birth:
+            # choose proper pronoun
+            pronoun = 'his' if record.sex.strip() == 'M' else 'her' if record.sex.strip() == 'F' else 'their'
+            toReturn += "Error US03: Birth date of " + record.name.replace('/', '') + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
+    return toReturn
+
+def checkUS13():
+    '''Checks the dates each sibling was born to make sure they are logical.
+        Labeled as an anomaly because of adoptions or step-siblings.'''
     dates = []
     errors = ''
-    for fam in families:
-        f = families[fam]
+    # go through each family record
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
         children = f.chil
+        # if there are not two children to compare, skip the rest
         if len(children) < 2:
             continue
+        # get the birth dates for each child
         for c in children:
-            dates.append(inds[c].birth)
+            dates.append(INDIVIDUALS[c].birth)
+        # compare each birth date with every other birth date
         for i in range(len(dates)-1):
             for j in range(i+1, len(dates)):
                 days = abs((dates[j] - dates[i])).days
+                # check if the birth dates are in the valid range
                 if days < 2 or days > 240:
                     continue
                 else:
-                    errors += 'Error US13: Birth dates of ' + inds[children[j]].name.replace('/', '') + '(' + inds[children[j]].idNum + ') and ' + inds[children[i]].name.replace('/', '') + '(' + inds[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
+                    errors += 'Anomaly US13: Birth dates of ' + INDIVIDUALS[children[j]].name.replace('/', '') + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + INDIVIDUALS[children[i]].name.replace('/', '') + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
                 
 def checkUS22(args, tag):
+    '''Check to ensure that no family or individual id is used more than once.'''
     errors = ""
     if tag:
         if args in FAMILIES.keys():
@@ -278,6 +325,8 @@ def checkUS22(args, tag):
         if args in INDIVIDUALS.keys():
             errors += "Error US22: Individual ID " + args + " already used.\n"
     return errors
+
+### CLASSES ###
 
 class Record:
     ''' A record contains the id number of the individual with name 'name', their
