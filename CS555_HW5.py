@@ -170,6 +170,7 @@ def parseFile(file, test=False):
         errors += "\n" + checkUS02() + "\n"
         errors += checkUS03() + "\n"
         errors += checkUS04() + "\n"
+        errors += checkUS05() + "\n"
         errors += checkUS06() + "\n"
         errors += checkUS13() + "\n"
         print(errors)
@@ -305,6 +306,22 @@ def checkUS04():
                 error += "Error US04: Divorce date of "+INDIVIDUALS[FAMILIES[key].husb].name.replace('/', '')+"("+FAMILIES[key].husb.replace('@', '')+") and "+INDIVIDUALS[FAMILIES[key].wife].name.replace('/', '')+"("+FAMILIES[key].wife.replace("@", '')+") is before their marriage.\n"
     return error
 
+def checkUS05():
+    error = ""
+    for key in FAMILIES.keys():
+        wifeID = FAMILIES[key].wife
+        husbandID = FAMILIES[key].husb
+        marrDate = FAMILIES[key].marr
+        if INDIVIDUALS[husbandID].death != "":
+            husbandDeath = INDIVIDUALS[husbandID].death
+            if (marrDate-husbandDeath).days >= 0:
+                error += "Error US05: Marriage date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after one of their death.\n"
+                return error
+        if INDIVIDUALS[wifeID].death != "":
+            wifeDeath = INDIVIDUALS[wifeID].death
+            if (marrDate-wifeDeath).days >= 0:
+                error += "Error US05: Marriage date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after one of their death.\n"
+                return error
 
 def checkUS06():
     error = ""
