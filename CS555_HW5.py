@@ -28,13 +28,13 @@ MONTHS = {
 INDIVIDUALS = {}  # dictionary of an individual's id matching with their data
 FAMILIES = {}  # dictionary of a family id matching with their data
 
-def parseFile(file):
+def parseFile(file, test=False):
     '''Parses a GEDCOM file based on the specifications given in the
-        homework description'''
+        homework description. if test==True, don't print'''
     errors = ""
     # reset the dictionaries
-    # INDIVIDUALS = {}
-    # FAMILIES = {}
+    INDIVIDUALS.clear()
+    FAMILIES.clear()
     # individuals fields
     name = ''
     sex = ''
@@ -160,15 +160,16 @@ def parseFile(file):
         FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
 
     # print all records in table format
-    print("Individuals")
-    printIndOutput()
-    print("Families")
-    printFamOutput()
-    print("\nErrors:")
-    errors += "\n" + checkUS02() + "\n"
-    errors += checkUS03() + "\n"
-    errors += checkUS13() + "\n"
-    print(errors)
+    if not test:
+        print("Individuals")
+        printIndOutput()
+        print("Families")
+        printFamOutput()
+        print("\nErrors:")
+        errors += "\n" + checkUS02() + "\n"
+        errors += checkUS03() + "\n"
+        errors += checkUS13() + "\n"
+        print(errors)
 
 
 def printIndOutput():
@@ -268,10 +269,10 @@ def checkUS02():
         husbBirth= INDIVIDUALS[FAMILIES[x].husb].birth
         if mar < wifeBirth:
             pronoun = 'his' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'F' else 'their'
-            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].wife].name.replace('/', '') + "occurs after " + pronoun + " marriage date.\n"
+            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].wife].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
         if mar < husbBirth:
             pronoun = 'his' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'F' else 'their'
-            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') +  "occurs after " + pronoun + " marriage date.\n"
+            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
     return toReturn
 
 def checkUS03():
