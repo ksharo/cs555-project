@@ -5,6 +5,7 @@
 '''
 
 from datetime import date
+from os import error
 # pip install -U prettytable
 from prettytable import PrettyTable
 
@@ -168,6 +169,7 @@ def parseFile(file, test=False):
         print("\nErrors:")
         errors += "\n" + checkUS02() + "\n"
         errors += checkUS03() + "\n"
+        errors += checkUS04() + "\n"
         errors += checkUS06() + "\n"
         errors += checkUS13() + "\n"
         print(errors)
@@ -291,6 +293,19 @@ def checkUS03():
             toReturn += "Error US03: Birth date of " + record.name.replace('/', '') + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
     return toReturn
 
+def checkUS04():
+    error = ""
+    for key in FAMILIES.keys():
+        if FAMILIES[key].div == '':
+            continue
+        else:
+            divDate = FAMILIES[key].div
+            marrDate = FAMILIES[key].marr
+            if (divDate-marrDate).days < 0:
+                error += "Error US04: Divorce date of "+INDIVIDUALS[FAMILIES[key].husb].name.replace('/', '')+"("+FAMILIES[key].husb.replace('@', '')+") and "+INDIVIDUALS[FAMILIES[key].wife].name.replace('/', '')+"("+FAMILIES[key].wife.replace("@", '')+") is before their marriage.\n"
+    return error
+
+
 def checkUS06():
     error = ""
     for key in FAMILIES.keys():
@@ -305,10 +320,7 @@ def checkUS06():
             if INDIVIDUALS[wifeID].death == "":
                 continue
             wifeDeath = INDIVIDUALS[wifeID].death
-            print("Wife: "+str(wifeDeath))
             husbandDeath = INDIVIDUALS[husbandID].death
-            print("Husband: "+str(husbandDeath)+" "+str(INDIVIDUALS[husbandID].name))
-            print("DIV:"+str(divDate))
             if (divDate-wifeDeath).days >= 0 and (divDate-husbandDeath).days >= 0:
                 error += "Error US06: Divorce date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after their deaths.\n"
     return error
