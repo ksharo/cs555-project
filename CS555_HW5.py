@@ -74,7 +74,7 @@ def parseFile(file, test=False):
             tag = sections[1]
             for x in sections[2:]:
                 args += x + " "
-        
+
         # start new dictionary entry for each new individual id and reset the relevant fields
         if tag == "INDI":
             if idNum != '':
@@ -99,7 +99,7 @@ def parseFile(file, test=False):
             wife = ''
             chil = []
             div = ''
-            
+
 
         # set record fields for each tag
         if tag == "NAME":
@@ -122,7 +122,7 @@ def parseFile(file, test=False):
 
         if tag == "CHIL":
             chil.append(args.replace('@', '').replace(' ', ''))
-            
+
         if tag == "BIRT":
             nextBirth = True
 
@@ -168,6 +168,7 @@ def parseFile(file, test=False):
         print("\nErrors:")
         errors += "\n" + checkUS02() + "\n"
         errors += checkUS03() + "\n"
+        errors += checkUS06() + "\n"
         errors += checkUS13() + "\n"
         print(errors)
 
@@ -239,7 +240,7 @@ def printFamOutput():
                 children += "'" + c + "', "
             # remove extra space and comma before ending bracket
             children = children[:len(children)-2] + '}'
-        
+
         # add the row to the table
         rowToAdd = [record.fam, record.marr, div, record.husb, inds[record.husb].name, record.wife, inds[record.wife].name, children]
         famTable.add_row(rowToAdd)
@@ -290,6 +291,30 @@ def checkUS03():
             toReturn += "Error US03: Birth date of " + record.name.replace('/', '') + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
     return toReturn
 
+def checkUS06():
+    error = ""
+    for key in FAMILIES.keys():
+        if FAMILIES[key].div == "":
+            continue
+        else:
+            divDate = FAMILIES[key].div
+            wifeID = FAMILIES[key].wife
+            husbandID = FAMILIES[key].husb
+            if INDIVIDUALS[husbandID].death == "":
+                continue
+            if INDIVIDUALS[wifeID].death == "":
+                continue
+            wifeDeath = INDIVIDUALS[wifeID].death
+            print("Wife: "+str(wifeDeath))
+            husbandDeath = INDIVIDUALS[husbandID].death
+            print("Husband: "+str(husbandDeath)+" "+str(INDIVIDUALS[husbandID].name))
+            print("DIV:"+str(divDate))
+            if (divDate-wifeDeath).days >= 0 and (divDate-husbandDeath).days >= 0:
+                error += "Error US06: Divorce date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after their deaths.\n"
+    return error
+
+
+
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
         Labeled as an anomaly because of adoptions or step-siblings.'''
@@ -315,7 +340,7 @@ def checkUS13():
                 else:
                     errors += 'Anomaly US13: Birth dates of ' + INDIVIDUALS[children[j]].name.replace('/', '') + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + INDIVIDUALS[children[i]].name.replace('/', '') + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
-                
+
 def checkUS22(args, tag):
     '''Check to ensure that no family or individual id is used more than once.'''
     errors = ""
@@ -351,7 +376,7 @@ class Family:
         self.wife = wife
         self.chil = chil
         self.div = div
-    
+
 
 if __name__ == "__main__":
     fileName = input("What is the name of your file? (Make sure it is in your current directory)\n")
