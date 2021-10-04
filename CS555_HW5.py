@@ -163,7 +163,7 @@ def parseFile(file, test=False):
     # print all records in table format
     if not test:
         print("Individuals")
-        printIndOutput()
+        errors += printIndOutput()
         print("Families")
         printFamOutput()
         print("\nErrors:")
@@ -177,6 +177,7 @@ def parseFile(file, test=False):
 
 
 def printIndOutput():
+    errors = ""
     records = INDIVIDUALS
     indTable = PrettyTable()
     indHeader = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
@@ -193,6 +194,7 @@ def printIndOutput():
             alive = False
             death = record.death
             age = record.death.year - record.birth.year - ((record.death.month, record.death.day) < (record.birth.month, record.birth.day))
+        errors += checkUS07(age, record.idNum)
         # set child to family id or NA if not applicable
         children = record.famc
         if len(children) == 0:
@@ -219,6 +221,7 @@ def printIndOutput():
         rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, child, spouse]
         indTable.add_row(rowToAdd)
     print(indTable)
+    return errors
 
 def printFamOutput():
     families = FAMILIES
@@ -322,6 +325,7 @@ def checkUS05():
             if (marrDate-wifeDeath).days >= 0:
                 error += "Error US05: Marriage date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after one of their death.\n"
                 return error
+    return error
 
 def checkUS06():
     error = ""
@@ -342,7 +346,11 @@ def checkUS06():
                 error += "Error US06: Divorce date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after their deaths.\n"
     return error
 
-
+def checkUS07(age, id):
+    error = ""
+    if age > 150:
+        error += "Error US07: Age of "+INDIVIDUALS[id].name.replace('/', '')+"("+id.replace('@', '')+") > 150.\n"
+    return error
 
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
