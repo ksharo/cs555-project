@@ -23,7 +23,7 @@ class TestUS02(unittest.TestCase):
         f = open('./TestFiles/US02/us02test2_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS02(),
-                         "Error US02: Birth date of Sarah Alanson (I6000000178401456922) occurs after her marriage date.\nError US02: Birth date of Lloyd Alanson (I6000000178401456922) occurs after his marriage date.\n",
+                         "Error US02: Birth date of Sarah Alanson (I6000000178401456922) occurs after her marriage date.\nError US02: Birth date of Lloyd Alanson (I6000000178401748954) occurs after his marriage date.\n",
                          "Should print error for husband and wife.")
         f.close()
 
@@ -49,7 +49,7 @@ class TestUS02(unittest.TestCase):
         f = open('./TestFiles/US02/us02test4_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS02(),
-                         "Error US02: Birth date of Elijah Thomas (I6000000178403254861) occurs after his marriage date.\n",
+                         "Error US02: Birth date of Elijah Thomas (I6000000178400484002) occurs after his marriage date.\n",
                          "Should print error for husband only.")
         f.close()
 
@@ -62,7 +62,7 @@ class TestUS02(unittest.TestCase):
         f = open('./TestFiles/US02/us02test5_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS02(),
-                         "Error US02: Birth date of Elijah Thomas (I6000000178403254861) occurs after his marriage date.\n",
+                         "Error US02: Birth date of Elijah Thomas (I6000000178400484002) occurs after his marriage date.\n",
                          "Should print error for husband only.")
         f.close()
 
@@ -166,57 +166,6 @@ class TestUS03(unittest.TestCase):
         self.assertEqual(checkUS03(), "", "Should not print an error.")
         f.close()
 
-class TestUS04(unittest.TestCase):
-    def testMarriageFirst(self):
-        '''
-        Tests that no errors when marriage is before divorce
-        '''
-        f = open('./TestFiles/valid.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS04(), "", "Should print no errors")
-        f.close()
-    def testDivorceFirst(self):
-        '''
-        Tests that error occurs when divorce is before marriage
-        '''
-        f = open('./TestFiles/US04/us04test2_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS04(), "Error US04: Divorce date of Julius Lexus (I6000000178403393861) and Summer Lexus (I6000000178402244920) is before their marriage.\n", "Should print error")
-        f.close()
-
-class TestUS05(unittest.TestCase):
-    def testgoodMarriage(self):
-        '''
-        Tests that no errors when marriage is before death
-        '''
-        f = open('./TestFiles/valid.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS05(), "", "Should print no errors")
-        f.close()
-    def testHusbandDeathBeforeMarriage(self):
-        '''
-        Tests that error occurs when husband death is before marriage
-        '''
-        f = open('./TestFiles/US05/us05test2_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS05(), "Error US05: Marriage date of Elijah Thomas (I6000000178400484002) and Jennifer Thomas (I6000000178403254861) is after one of their death.\n", "Should print no errors")
-        f.close()
-    def testWifeDeathBeforeMarriage(self):
-        '''
-        Tests that error occurs when husband death is before marriage
-        '''
-        f = open('./TestFiles/US05/us05test3_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS05(), "Error US05: Marriage date of Julius Lexus (I6000000178403393861) and Summer Lexus (I6000000178402244920) is after one of their death.\n", "Should print no errors")
-        f.close()
-    def testBothDeathBeforeMarriage(self):
-        '''
-        Tests that error occurs when both husband and wife are dead before marriage
-        '''
-        f = open('./TestFiles/US05/us05test4_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS05(), "Error US05: Marriage date of Julius Lexus (I6000000178403393861) and Summer Lexus (I6000000178402244920) is after one of their death.\n", "Should print no errors")
-        f.close()
 
 class TestUS06(unittest.TestCase):
     def testGoodDivorceDate(self):
