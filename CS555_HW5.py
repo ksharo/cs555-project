@@ -273,13 +273,13 @@ def checkUS02():
     for x in FAMILIES:
         mar = FAMILIES[x].marr
         wifeBirth = INDIVIDUALS[FAMILIES[x].wife].birth
-        husbBirth= INDIVIDUALS[FAMILIES[x].husb].birth
-        if mar < wifeBirth:
+        husbBirth = INDIVIDUALS[FAMILIES[x].husb].birth
+        if mar < wifeBirth: #REFACTOR pronoun into a separate method
             pronoun = 'his' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'F' else 'their'
             toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].wife].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
         if mar < husbBirth:
             pronoun = 'his' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'F' else 'their'
-            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
+            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].husb].idNum +") occurs after " + pronoun + " marriage date.\n"
     return toReturn
 
 def checkUS03():
@@ -292,7 +292,7 @@ def checkUS03():
         if record.death == '' or record.birth == '':
             continue
         if record.death < record.birth:
-            # choose proper pronoun
+            # choose proper pronoun REFACTOR
             pronoun = 'his' if record.sex.strip() == 'M' else 'her' if record.sex.strip() == 'F' else 'their'
             toReturn += "Error US03: Birth date of " + record.name.replace('/', '') + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
     return toReturn
@@ -336,7 +336,7 @@ def checkUS06():
             divDate = FAMILIES[key].div
             wifeID = FAMILIES[key].wife
             husbandID = FAMILIES[key].husb
-            if INDIVIDUALS[husbandID].death == "":
+            if INDIVIDUALS[husbandID].death == "": #REFACTOR into one if statement?
                 continue
             if INDIVIDUALS[wifeID].death == "":
                 continue
