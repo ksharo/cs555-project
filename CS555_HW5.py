@@ -351,7 +351,37 @@ def checkUS07(age, id):
     if age > 150:
         error += "Error US07: Age of "+INDIVIDUALS[id].name.replace('/', '')+"("+id.replace('@', '')+") > 150.\n"
     return error
-
+    
+def checkUS08():
+    error = ""
+    for i in FAMILIES:
+        if(i.chil != []):
+            for j in i.chil:
+                divDate = i.div
+                marDate = i.marr
+                chilBirth = INDIVIDUALS[j].birth
+                if(chilBirth-divDate).days >= 30*9:
+                    error += "Error US08: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born more than 9 months after their parents divorced.\n"
+                if(marDate-chilBirth).days <= 0: 
+                    error += "Error US08: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born before their got married.\n"
+             
+     return error     
+def checkUS09():
+    error = ""
+    for i in FAMILIES:
+        if(i.chil != []):
+            for j in i.chil:
+                chilBirth = INDIVIDUALS[j].birth
+                mothDeath = INDIVIDUALS[i.wife].death
+                fathDeath = INDIVIDUALS[i.husb].death
+                if(mothDeath != ""):
+                    if(chilBirth-mothDeath).days >= 1:
+                        error += "Error US09: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born after the death of the mother.\n"
+                if(fathDeath != ""):
+                    if(chilBirth-fathDeath).days >= 30*9:
+                        error += "Error US09: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born more than 9 months after the death of father.\n"
+     return error               
+                
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
         Labeled as an anomaly because of adoptions or step-siblings.'''
