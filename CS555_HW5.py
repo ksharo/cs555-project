@@ -80,7 +80,7 @@ def parseFile(file, test=False):
         if tag == "INDI":
             if idNum != '':
                 INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
-            idNum = args.replace('@', '')
+            idNum = stripClean(args)
             errors += checkUS22(idNum, 0)
             name = ''
             sex = ''
@@ -93,7 +93,7 @@ def parseFile(file, test=False):
         if tag == "FAM":
             if fam != '':
                 FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
-            fam = args.replace('@', '')
+            fam = stripClean(args)
             errors += checkUS22(fam, 1)
             marr = ''
             husb = ''
@@ -110,19 +110,19 @@ def parseFile(file, test=False):
             sex = args
 
         if tag == "FAMC":
-            famc.append(args.replace('@', '').replace(' ', ''))
+            famc.append(stripClean(args))
 
         if tag == "FAMS":
-            fams.append(args.replace('@', '').replace(' ', ''))
+            fams.append(stripClean(args))
 
         if tag == "WIFE":
-            wife = args.replace('@', '').replace(' ', '')
+            wife = stripClean(args)
 
         if tag == "HUSB":
-            husb = args.replace('@', '').replace(' ', '')
+            husb = stripClean(args)
 
         if tag == "CHIL":
-            chil.append(args.replace('@', '').replace(' ', ''))
+            chil.append(stripClean(args))
 
         if tag == "BIRT":
             nextBirth = True
@@ -172,11 +172,20 @@ def parseFile(file, test=False):
         errors += checkUS04() + "\n"
         errors += checkUS05() + "\n"
         errors += checkUS06() + "\n"
+        errors += checkUS08() + "\n"
+        errors += checkUS09() + "\n"
         errors += checkUS13() + "\n"
         print(errors)
 
+def stripClean(x, spaces=True):
+    ''' Cleans x by stripping @, / and spaces (optional) '''
+    if spaces:
+        return x.replace('@', '').replace('/', '').replace(' ', '')
+    else:
+        return x.replace('@', '').replace('/', '')
 
 def printIndOutput():
+    ''' Prints the table with the individuals' information '''
     errors = ""
     records = INDIVIDUALS
     indTable = PrettyTable()
@@ -196,34 +205,31 @@ def printIndOutput():
             age = record.death.year - record.birth.year - ((record.death.month, record.death.day) < (record.birth.month, record.birth.day))
         errors += checkUS07(age, record.idNum)
         # set child to family id or NA if not applicable
-        children = record.famc
-        if len(children) == 0:
-            child = 'NA'
-        else:
-            # format child record properly
-            child = '{'
-            for c in children:
-                child += "'" + c + "', "
-            # remove extra space and comma before ending bracket
-            child = child[:len(child)-2] + '}'
+        children = formatGroup(record.famc)
         # set spouse to family id or NA if not applicable
-        spouses = record.fams
-        if len(spouses) == 0:
-            spouse = 'NA'
-        else:
-            # format child record properly
-            spouse = '{'
-            for s in spouses:
-                spouse += "'" + s + "', "
-            # remove extra space and comma before ending bracket
-            spouse = spouse[:len(spouse)-2] + '}'
+        spouses = formatGroup(record.fams)
         # add the row to the table
-        rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, child, spouse]
+        rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, children, spouses]
         indTable.add_row(rowToAdd)
     print(indTable)
     return errors
 
+def formatGroup(group):
+    ''' Formats a group of individuals (children or spouses) as
+        requested in the assignment: {'child1', 'child2', 'child3'}. '''
+    if len(group) == 0:
+        toReturn = 'NA'
+    else:
+        # format spouse record properly
+        toReturn = '{'
+        for i in group:
+            toReturn += "'" + i + "', "
+        # remove extra space and comma before ending bracket
+        toReturn = toReturn[:len(toReturn)-2] + '}'
+    return toReturn
+
 def printFamOutput():
+    ''' Prints the table with the families' information '''
     families = FAMILIES
     inds = INDIVIDUALS
     famTable = PrettyTable()
@@ -264,6 +270,10 @@ def returnDate(args):
     fullDate = year + '-' + month + '-' + day
     return date.fromisoformat(fullDate)
 
+def getPronoun(sex):
+    ''' Returns the appropriate pronoun based on the individuals' recorded gender. '''
+    return 'his' if sex.strip() == 'M' else 'her' if sex.strip() == 'F' else 'their'
+
 #### USER STORIES ####
 
 def checkUS02():
@@ -273,13 +283,13 @@ def checkUS02():
     for x in FAMILIES:
         mar = FAMILIES[x].marr
         wifeBirth = INDIVIDUALS[FAMILIES[x].wife].birth
-        husbBirth = INDIVIDUALS[FAMILIES[x].husb].birth
-        if mar < wifeBirth: #REFACTOR pronoun into a separate method
-            pronoun = 'his' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].wife].sex.strip() == 'F' else 'their'
-            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].wife].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
+        husbBirth= INDIVIDUALS[FAMILIES[x].husb].birth
+        if mar < wifeBirth:
+            pronoun = getPronoun(INDIVIDUALS[FAMILIES[x].wife].sex)
+            toReturn += "Error US02: Birth date of " + stripClean(INDIVIDUALS[FAMILIES[x].wife].name, False) + "(" + INDIVIDUALS[FAMILIES[x].wife].idNum +") occurs after " + pronoun + " marriage date.\n"
         if mar < husbBirth:
-            pronoun = 'his' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'M' else 'her' if INDIVIDUALS[FAMILIES[x].husb].sex.strip() == 'F' else 'their'
-            toReturn += "Error US02: Birth date of " + INDIVIDUALS[FAMILIES[x].husb].name.replace('/', '') + "(" + INDIVIDUALS[FAMILIES[x].husb].idNum +") occurs after " + pronoun + " marriage date.\n"
+            pronoun = getPronoun(INDIVIDUALS[FAMILIES[x].husb].sex)
+            toReturn += "Error US02: Birth date of " + stripClean(INDIVIDUALS[FAMILIES[x].husb].name, False) + "(" + INDIVIDUALS[FAMILIES[x].husb].idNum +") occurs after " + pronoun + " marriage date.\n"
     return toReturn
 
 def checkUS03():
@@ -292,9 +302,9 @@ def checkUS03():
         if record.death == '' or record.birth == '':
             continue
         if record.death < record.birth:
-            # choose proper pronoun REFACTOR
-            pronoun = 'his' if record.sex.strip() == 'M' else 'her' if record.sex.strip() == 'F' else 'their'
-            toReturn += "Error US03: Birth date of " + record.name.replace('/', '') + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
+            # choose proper pronoun
+            pronoun = getPronoun(record.sex)
+            toReturn += "Error US03: Birth date of " + stripClean(record.name, False) + "(" + record.idNum + ") occurs after " + pronoun + " death date.\n"
     return toReturn
 
 def checkUS04():
@@ -306,7 +316,7 @@ def checkUS04():
             divDate = FAMILIES[key].div
             marrDate = FAMILIES[key].marr
             if (divDate-marrDate).days < 0:
-                error += "Error US04: Divorce date of "+INDIVIDUALS[FAMILIES[key].husb].name.replace('/', '')+"("+FAMILIES[key].husb.replace('@', '')+") and "+INDIVIDUALS[FAMILIES[key].wife].name.replace('/', '')+"("+FAMILIES[key].wife.replace("@", '')+") is before their marriage.\n"
+                error += "Error US04: Divorce date of " + stripClean(INDIVIDUALS[FAMILIES[key].husb].name, False) + "(" + stripClean(FAMILIES[key].husb) + ") and " + stripClean(INDIVIDUALS[FAMILIES[key].wife].name, False) + "(" + stripClean(FAMILIES[key].wife) + ") is before their marriage.\n"
     return error
 
 def checkUS05():
@@ -318,12 +328,12 @@ def checkUS05():
         if INDIVIDUALS[husbandID].death != "":
             husbandDeath = INDIVIDUALS[husbandID].death
             if (marrDate-husbandDeath).days >= 0:
-                error += "Error US05: Marriage date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after one of their death.\n"
+                error += "Error US05: Marriage date of " + stripClean(INDIVIDUALS[husbandID].name, False) + "(" + stripClean(husbandID) + ") and " + stripClean(INDIVIDUALS[wifeID].name, False) + "(" + stripClean(wifeID) + ") is after one of their deaths.\n"
                 return error
         if INDIVIDUALS[wifeID].death != "":
             wifeDeath = INDIVIDUALS[wifeID].death
             if (marrDate-wifeDeath).days >= 0:
-                error += "Error US05: Marriage date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after one of their death.\n"
+                error += "Error US05: Marriage date of " + stripClean(INDIVIDUALS[husbandID].name, False) + "(" + stripClean(husbandID)+") and " + stripClean(INDIVIDUALS[wifeID].name, False) + "(" + stripClean(wifeID) + ") is after one of their deaths.\n"
                 return error
     return error
 
@@ -336,51 +346,59 @@ def checkUS06():
             divDate = FAMILIES[key].div
             wifeID = FAMILIES[key].wife
             husbandID = FAMILIES[key].husb
-            if INDIVIDUALS[husbandID].death == "": #REFACTOR into one if statement?
+            if INDIVIDUALS[husbandID].death == "":
                 continue
             if INDIVIDUALS[wifeID].death == "":
                 continue
             wifeDeath = INDIVIDUALS[wifeID].death
             husbandDeath = INDIVIDUALS[husbandID].death
             if (divDate-wifeDeath).days >= 0 and (divDate-husbandDeath).days >= 0:
-                error += "Error US06: Divorce date of "+INDIVIDUALS[husbandID].name.replace('/', '')+"("+husbandID.replace('@', '')+") and "+INDIVIDUALS[wifeID].name.replace('/', '')+"("+wifeID.replace("@", '')+") is after their deaths.\n"
+                error += "Error US06: Divorce date of " + stripClean(INDIVIDUALS[husbandID].name, False) + "(" + stripClean(husbandID) + ") and " + stripClean(INDIVIDUALS[wifeID].name, False) + "(" + stripClean(wifeID) + ") is after their deaths.\n"
     return error
 
 def checkUS07(age, id):
     error = ""
     if age > 150:
-        error += "Error US07: Age of "+INDIVIDUALS[id].name.replace('/', '')+"("+id.replace('@', '')+") > 150.\n"
+        error += "Error US07: Age of " + stripClean(INDIVIDUALS[id].name, False) + "(" + stripClean(id) + ") > 150.\n"
     return error
     
 def checkUS08():
     error = ""
-    for i in FAMILIES:
+    for x in FAMILIES:
+        i = FAMILIES[x]
         if(i.chil != []):
             for j in i.chil:
                 divDate = i.div
                 marDate = i.marr
                 chilBirth = INDIVIDUALS[j].birth
-                if(chilBirth-divDate).days >= 30*9:
-                    error += "Error US08: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born more than 9 months after their parents divorced.\n"
-                if(marDate-chilBirth).days <= 0: 
-                    error += "Error US08: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born before their got married.\n"
-             
-     return error     
+                pronoun = getPronoun(INDIVIDUALS[j].sex)
+                if (divDate != ''):
+                    if(chilBirth-divDate).days >= 30*9:
+                        error += "Error US08: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after " + pronoun + " parents got divorced.\n"
+                if (marDate != ''):
+                    if(marDate-chilBirth).days >= 0: 
+                        error += "Error US08: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born before " + pronoun + " parents got married.\n"
+                else:
+                    error += "Error US08: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born before " + pronoun + " parents got married.\n"
+    return error
+    
 def checkUS09():
     error = ""
-    for i in FAMILIES:
+    for x in FAMILIES:
+        i = FAMILIES[x]
         if(i.chil != []):
             for j in i.chil:
                 chilBirth = INDIVIDUALS[j].birth
                 mothDeath = INDIVIDUALS[i.wife].death
                 fathDeath = INDIVIDUALS[i.husb].death
+                pronoun = getPronoun(INDIVIDUALS[j].sex)
                 if(mothDeath != ""):
                     if(chilBirth-mothDeath).days >= 1:
-                        error += "Error US09: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born after the death of the mother.\n"
+                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
                 if(fathDeath != ""):
                     if(chilBirth-fathDeath).days >= 30*9:
-                        error += "Error US09: "+INDIVIDUALS[j].name.replace('/', '')+"("+j.replace('@', '')+") was born more than 9 months after the death of father.\n"
-     return error               
+                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
+    return error               
                 
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
@@ -405,7 +423,7 @@ def checkUS13():
                 if days < 2 or days > 240:
                     continue
                 else:
-                    errors += 'Anomaly US13: Birth dates of ' + INDIVIDUALS[children[j]].name.replace('/', '') + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + INDIVIDUALS[children[i]].name.replace('/', '') + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
+                    errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
 def checkUS22(args, tag):
