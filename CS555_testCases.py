@@ -1,10 +1,11 @@
 import unittest
 from CS555_HW5 import *
 
+
 class TestExtraMethods(unittest.TestCase):
     def testPronounHe(self):
         self.assertEqual(getPronoun('M'), 'his', 'Should return his for sex M.')
-    
+
     def testPronounShe(self):
         self.assertEqual(getPronoun('F'), 'her', 'Should return her for sex F.')
 
@@ -13,6 +14,7 @@ class TestExtraMethods(unittest.TestCase):
 
     def testGroupPrint(self):
         self.assertEqual(formatGroup(['1', '2', '3']), "{'1', '2', '3'}", 'Should return a properly formatted group.')
+
 
 class TestUS02(unittest.TestCase):
 
@@ -189,6 +191,7 @@ class TestUS06(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS06(), "", "Should print no errors")
         f.close()
+
     def testBadDivorceDate(self):
         """
         Basic test to make sure a "bad" divorce date fails
@@ -200,6 +203,7 @@ class TestUS06(unittest.TestCase):
                          "Error US06: Divorce date of Julius Lexus (I6000000178403393861) and Summer Lexus (I6000000178402244920) is after their deaths.\n",
                          "Should print one error including a divorced couple.")
         f.close()
+
     def testDeadHusbandLivingWife(self):
         """
         Test to see if a dead husband but living wife will trigger an
@@ -212,6 +216,7 @@ class TestUS06(unittest.TestCase):
                          "",
                          "Should print no errors.")
         f.close()
+
     def testDeadWifeLivingHusband(self):
         """
         Test to see if a dead wife but living husband will trigger an
@@ -224,6 +229,7 @@ class TestUS06(unittest.TestCase):
                          "",
                          "Should print no errors.")
         f.close()
+
     def testMultipleBadDivorceDates(self):
         """
         Test to see if a dead wife but living husband will trigger an
@@ -236,6 +242,7 @@ class TestUS06(unittest.TestCase):
                          "Error US06: Divorce date of Julius Lexus (I6000000178403393861) and Summer Lexus (I6000000178402244920) is after their deaths.\nError US06: Divorce date of Lloyd Alanson (I6000000178401748954) and Summer Lexus (I6000000178402244920) is after their deaths.\n",
                          "Should print no errors.")
         f.close()
+
 
 class TestUS07(unittest.TestCase):
     def testGoodAge(self):
@@ -272,6 +279,7 @@ class TestUS07(unittest.TestCase):
                          "Should print no errors.")
         f.close()
 
+
 class TestUS08(unittest.TestCase):
     def testValidInput(self):
         ''' Test that no errors occurs with valid input. '''
@@ -285,35 +293,89 @@ class TestUS08(unittest.TestCase):
             9 months after his/her parents' divorce. '''
         f = open('./TestFiles/US08/us08test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS08(), "Error US08: Elijah Thomas (I6000000178400484002) was born more than 9 months after his parents got divorced.\n", "Should print a divorce error")
+        self.assertEqual(checkUS08(),
+                         "Error US08: Elijah Thomas (I6000000178400484002) was born more than 9 months after his parents got divorced.\n",
+                         "Should print a divorce error")
         f.close()
 
     def testLateMarriage(self):
         ''' Test that an error is printed when a child is born before his/her parents' marriage. '''
         f = open('./TestFiles/US08/us08test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS08(), "Error US08: September Thomas (I6000000178401782906) was born before her parents got married.\n", "Should print a marriage error")
+        self.assertEqual(checkUS08(),
+                         "Error US08: September Thomas (I6000000178401782906) was born before her parents got married.\n",
+                         "Should print a marriage error")
         f.close()
 
     def testMultErrDiv(self):
         ''' Test that an error is printed when three siblings have errors with divorce '''
         f = open('./TestFiles/US08/us08test4_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS08(), "Error US08: April Thomas (I6000000178401304897) was born more than 9 months after her parents got divorced.\nError US08: August Thomas (I6000000178403634834) was born more than 9 months after his parents got divorced.\nError US08: September Thomas (I6000000178401782906) was born more than 9 months after her parents got divorced.\n", "Should print two divorce errors")
+        self.assertEqual(checkUS08(),
+                         "Error US08: April Thomas (I6000000178401304897) was born more than 9 months after her parents got divorced.\nError US08: August Thomas (I6000000178403634834) was born more than 9 months after his parents got divorced.\nError US08: September Thomas (I6000000178401782906) was born more than 9 months after her parents got divorced.\n",
+                         "Should print two divorce errors")
         f.close()
 
     def testMultErrMarr(self):
         ''' Test that an error is printed when two children have errors with marriage'''
         f = open('./TestFiles/US08/us08test5_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS08(), "Error US08: August Thomas (I6000000178403634834) was born before his parents got married.\nError US08: Jacob Alanson (I6000000178403963822) was born before his parents got married.\n", "Should print two marriage errors")
+        self.assertEqual(checkUS08(),
+                         "Error US08: August Thomas (I6000000178403634834) was born before his parents got married.\nError US08: Jacob Alanson (I6000000178403963822) was born before his parents got married.\n",
+                         "Should print two marriage errors")
         f.close()
 
     def testMultErrMix(self):
         ''' Test that an error is printed when many errors of each type occur '''
         f = open('./TestFiles/US08/us08test6_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS08(), "Error US08: August Thomas (I6000000178403634834) was born before his parents got married.\nError US08: September Thomas (I6000000178401782906) was born more than 9 months after her parents got divorced.\nError US08: Elijah Thomas (I6000000178400484002) was born before his parents got married.\n", "Should print multiple errors")
+        self.assertEqual(checkUS08(),
+                         "Error US08: August Thomas (I6000000178403634834) was born before his parents got married.\nError US08: September Thomas (I6000000178401782906) was born more than 9 months after her parents got divorced.\nError US08: Elijah Thomas (I6000000178400484002) was born before his parents got married.\n",
+                         "Should print multiple errors")
+        f.close()
+class TestUS09(unittest.TestCase):
+    def testValidInput(self):
+        ''' Test that no errors occurs with valid input. '''
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS09(), "", "Should print no errors")
+        f.close()
+
+    def testBirthAfterMothersDeath(self):
+        ''' Tests that an error is printed when a child is born after their mother's death '''
+        f = open('./TestFiles/US09/us09test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS09(),
+                         "Error US09: Elijah Thomas (I6000000178400484002) was born after the death of his mother.\n",
+                         "Should print a birth after mother's death error")
+        f.close()
+
+    def testBirth9MonthsAfterFathersDeath(self):
+        ''' Test that an error is printed when a child is born
+        more than 9 months after their father's death. '''
+        f = open('./TestFiles/US09/us09test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS09(),
+                         "Error US09: Elijah Thomas (I6000000178400484002) was born more than 9 months after the death of his father.\n",
+                         "Should print a birth after father's death error")
+        f.close()
+
+    def testMultErrFather(self):
+        ''' Test that an error is printed when three siblings have errors with father's death '''
+        f = open('./TestFiles/US09/us09test4_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS09(),
+                         "Error US09: April Thomas (I6000000178401304897) was born more than 9 months after the death of her father.\nError US09: August Thomas (I6000000178403634834) was born more than 9 months after the death of his father.\nError US09: September Thomas (I6000000178401782906) was born more than 9 months after the death of her father.\n",
+                         "Should print 3 birth after father's death errors")
+        f.close()
+
+    def testMultErrMother(self):
+        ''' Test that an error is printed when three children have errors with mother's death'''
+        f = open('./TestFiles/US09/us09test5_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS09(),
+                         "Error US09: April Thomas (I6000000178401304897) was born after the death of her mother.\nError US09: August Thomas (I6000000178403634834) was born after the death of his mother.\nError US09: September Thomas (I6000000178401782906) was born after the death of her mother.\n",
+                         "Should print three birth after mother's death errors")
         f.close()
 
 class TestUS13(unittest.TestCase):
@@ -376,6 +438,8 @@ class TestUS13(unittest.TestCase):
                          "Anomaly US13: Birth dates of August Thomas (I6000000178403634834) and April Thomas (I6000000178401304897) are 32 days apart.\nAnomaly US13: Birth dates of September Thomas (I6000000178401782906) and April Thomas (I6000000178401304897) are 61 days apart.\nAnomaly US13: Birth dates of September Thomas (I6000000178401782906) and August Thomas (I6000000178403634834) are 29 days apart.\n",
                          "Should print one error.")
         f.close()
+
+
 class TestUS22(unittest.TestCase):
     def testGoodIDs(self):
         """
@@ -387,6 +451,7 @@ class TestUS22(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS22("", 0), "", "Should print no errors")
         f.close()
+
     def testDuplicateIndividualID(self):
         """
         Tests that the proper error is thrown when a duplicate
@@ -399,6 +464,7 @@ class TestUS22(unittest.TestCase):
                          "Error US22: Individual ID I6000000178403862823 already used.\n",
                          "Should print one error.")
         f.close()
+
     def testDuplicateFamilyID(self):
         """
         Tests that the proper error is thrown when a duplicate
@@ -411,15 +477,17 @@ class TestUS22(unittest.TestCase):
                          "Error US22: Family ID F6000000178403660847 already used.\n",
                          "Should print one error.")
         f.close()
+
     def testMultipleDuplicateFamilyIDs(self):
         f = open('./TestFiles/US22/us22test4_input.ged', 'r')
         parseFile(f, True)
         test1 = checkUS22("F6000000178403503845", 1)
         test2 = checkUS22("F6000000178401748958", 1)
-        self.assertEqual(test1+test2,
+        self.assertEqual(test1 + test2,
                          "Error US22: Family ID F6000000178403503845 already used.\nError US22: Family ID F6000000178401748958 already used.\n",
                          "Should print two errors.")
         f.close()
+
     def testMultipleDuplicateIndividualIDs(self):
         f = open('./TestFiles/US22/us22test5_input.ged', 'r')
         parseFile(f, True)
@@ -429,6 +497,8 @@ class TestUS22(unittest.TestCase):
                          "Error US22: Individual ID I6000000178400484002 already used.\nError US22: Individual ID I6000000178403254861 already used.\n",
                          "Should print two errors.")
         f.close()
+
+
 if __name__ == "__main__":
     # run all the tests
     unittest.main()
