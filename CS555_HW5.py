@@ -174,7 +174,9 @@ def parseFile(file, test=False):
         errors += checkUS06() + "\n"
         errors += checkUS08() + "\n"
         errors += checkUS09() + "\n"
+        errors += checkUS10() + "\n"
         errors += checkUS13() + "\n"
+        errors += checkUS15() + "\n"
         print(errors)
 
 def stripClean(x, spaces=True):
@@ -399,7 +401,25 @@ def checkUS09():
                     if(chilBirth-fathDeath).days >= 30*9:
                         error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
     return error               
-                
+
+
+def checkUS10():
+    '''Checks to ensure that both individuals involved in a marriage
+       are at least 14 years old.'''
+    errors = ""
+    for x in FAMILIES:
+        f = FAMILIES[x]
+        if f.marr == "":
+            continue
+        else:
+            wifeDiff = f.marr - INDIVIDUALS[f.wife].birth
+            if wifeDiff.days < 5114 and wifeDiff.days >= 0:
+                errors += "Error US10: " + stripClean(INDIVIDUALS[f.wife].name, False) + "(" + stripClean(f.wife) + ") was younger than 14 when she got married.\n"
+            husbDiff = f.marr - INDIVIDUALS[f.husb].birth
+            if husbDiff.days < 5114 and husbDiff.days >= 0:
+                errors += "Error US10: " + stripClean(INDIVIDUALS[f.husb].name, False) + "(" + stripClean(f.husb) + ") was younger than 14 when he got married.\n"
+    return errors
+    
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
         Labeled as an anomaly because of adoptions or step-siblings.'''
@@ -425,6 +445,17 @@ def checkUS13():
                 else:
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
+
+def checkUS15():
+    '''Checks to make sure that there are at most 15 children in a family.'''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        children = f.chil
+        if len(children) > 15:
+            errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
+    return errors
+    
 
 def checkUS22(args, tag):
     '''Check to ensure that no family or individual id is used more than once.'''
