@@ -333,7 +333,6 @@ class TestUS08(unittest.TestCase):
                          "Error US08: August Thomas (I6000000178403634834) was born before his parents got married.\nError US08: September Thomas (I6000000178401782906) was born more than 9 months after her parents got divorced.\nError US08: Elijah Thomas (I6000000178400484002) was born before his parents got married.\n",
                          "Should print multiple errors")
         f.close()
-
 class TestUS09(unittest.TestCase):
     def testValidInput(self):
         ''' Test that no errors occurs with valid input. '''
@@ -379,43 +378,33 @@ class TestUS09(unittest.TestCase):
                          "Should print three birth after mother's death errors")
         f.close()
 
-class TestUS10(unittest.TestCase):
-    def testValidDates(self):
-        '''Test that no error is printed when all marriages occur
-        with both spouses being older than 14.'''
+class TestUS12(unittest.TestCase):
+    def testGoodAges(self):
         f = open('./TestFiles/valid.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS10(), "", "Should print no errors")
+        self.assertEqual(checkUS12(), "", "Should print no errors")
         f.close()
-    def testInvalidWife(self):
-        '''Test that an error is printed for the wife if she is
-            too young to get married.'''
-        f = open('./TestFiles/US10/us10test2_input.ged', 'r')
+
+    def testBadMotherAge(self):
+        f = open('./TestFiles/US12/us12test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS10(), "Error US10: Summer Lexus (I6000000178402244920) was younger than 14 when she got married.\n", "Should print an error for wife.")
+        self.assertEqual(checkUS12(),
+                         "Error US12: Mother Sarah Alanson (I6000000178401456922) is 1000 years older than her child, Elijah Thomas (I6000000178403660843).\n")
         f.close()
-    def testInvalidHusb(self):
-        '''Test that an error is printed for the husband if he is
-            too young to get married.'''
-        f = open('./TestFiles/US10/us10test3_input.ged', 'r')
+    def testBadFatherAge(self):
+        f = open('./TestFiles/US12/us12test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS10(), "Error US10: Elijah Thomas (I6000000178400484002) was younger than 14 when he got married.\n", "Should print an error for husband.")
+        self.assertEqual(checkUS12(),
+                         "Error US12: Father Julius Lexus (I6000000178403393861) is 973 years older than his child, Winter Thomas (I6000000178403503840).\n")
         f.close()
-    def testBothInvalid(self):
-        '''Test that an error is printed for both husband and wife
-            if they are both too young to get married.'''
-        f = open('./TestFiles/US10/us10test4_input.ged', 'r')
+    def testBadBothAge(self):
+        f = open('./TestFiles/US12/us12test4_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS10(), "Error US10: Jennifer Thomas (I6000000178403254861) was younger than 14 when she got married.\nError US10: Elijah Thomas (I6000000178400484002) was younger than 14 when he got married.\n", "Should print an error for husband and wife.")
+        self.assertEqual(checkUS12(),
+                         "Error US12: Mother Winter Thomas (I6000000178403503840) is 995 years older than her child, Elijah Thomas (I6000000178400484002).\nError US12: Father Ned Thomas (I6000000178403862823) is 995 years older than his child, Elijah Thomas (I6000000178400484002).\n")
         f.close()
-    def testNotBorn(self):
-        '''Test that no error is printed when the spouse has not
-            yet been born. This is handled by another test case.'''
-        f = open('./TestFiles/US02/us02test2_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS10(), "", "Should print no errors")
-        f.close()
-        
+
+
 class TestUS13(unittest.TestCase):
     def testGoodSiblings(self):
         """
@@ -477,28 +466,19 @@ class TestUS13(unittest.TestCase):
                          "Should print one error.")
         f.close()
 
-class TestUS15(unittest.TestCase):
-    def testValidDates(self):
-        '''Test that no error is printed when all sets of siblings are valid.'''
+class TestUS18(unittest.TestCase):
+    def testGoodMarriages(self):
         f = open('./TestFiles/valid.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS15(), "", "Should print no errors")
-        f.close()
-        
-    def testTooMany(self):
-        '''Test that an error is printed if there are too many children.'''
-        f = open('./TestFiles/US15/us15test2_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS15(), "Anomaly US15: Family F6000000178403660847 has 16 children.\n", "Should print an anomaly for too many siblings.")
-        f.close()
-        
-    def test15(self):
-        '''Test that no error is printed for exactly 15 children.'''
-        f = open('./TestFiles/US15/us15test3_input.ged', 'r')
-        parseFile(f, True)
-        self.assertEqual(checkUS15(), "", "Should print no errors.")
+        self.assertEqual(checkUS22("", 0), "", "Should print no errors")
         f.close()
 
+    def testBadMarriage(self):
+        f = open('./TestFiles/US18/us18test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS18(),
+                         "Error US18: August Thomas (I3634834) married his sibling, April Thomas (I3254861).\n")
+        f.close()
 
 class TestUS22(unittest.TestCase):
     def testGoodIDs(self):
