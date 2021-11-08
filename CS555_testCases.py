@@ -378,6 +378,20 @@ class TestUS09(unittest.TestCase):
                          "Should print three birth after mother's death errors")
         f.close()
 
+# class TestUS11(unittest.TestCase):
+#     def testNoBigamy(self):
+#         f = open('./TestFiles/valid.ged', 'r')
+#         parseFile(f, True)
+#         self.assertEqual(checkUS12(), "", "Should print no errors")
+#         f.close()
+
+#     def testBigamy(self):
+#         f = open('./TestFiles/US11/us11test2_input.ged', 'r')
+#         parseFile(f, True)
+#         self.assertEqual(checkUS11(),
+#                          "'Anomaly US11: April Thomas is married to multiple people.\n")
+#         f.close()
+
 class TestUS12(unittest.TestCase):
     def testGoodAges(self):
         f = open('./TestFiles/valid.ged', 'r')
@@ -464,6 +478,20 @@ class TestUS13(unittest.TestCase):
         self.assertEqual(checkUS13(),
                          "Anomaly US13: Birth dates of August Thomas (I6000000178403634834) and April Thomas (I6000000178401304897) are 32 days apart.\nAnomaly US13: Birth dates of September Thomas (I6000000178401782906) and April Thomas (I6000000178401304897) are 61 days apart.\nAnomaly US13: Birth dates of September Thomas (I6000000178401782906) and August Thomas (I6000000178403634834) are 29 days apart.\n",
                          "Should print one error.")
+        f.close()
+
+class TestUS14(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS14(), "", "Should print no errors")
+        f.close()
+
+    def testMoreThan5Births(self):
+        f = open('./TestFiles/US14/us14test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS14(),
+                         "Anomaly US14: Family F6000000178403254865 has 7 children born on the same day.\n")
         f.close()
 
 class TestUS18(unittest.TestCase):

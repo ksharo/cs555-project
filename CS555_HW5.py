@@ -175,8 +175,10 @@ def parseFile(file, test=False):
         errors += checkUS08() + "\n"
         errors += checkUS09() + "\n"
         errors += checkUS10() + "\n"
+        # errors += checkUS11() + "\n"
         errors += checkUS12() + "\n"
         errors += checkUS13() + "\n"
+        errors += checkUS14() + "\n"
         errors += checkUS15() + "\n"
         errors += checkUS18() + "\n"
         print(errors)
@@ -422,6 +424,21 @@ def checkUS10():
                 errors += "Error US10: " + stripClean(INDIVIDUALS[f.husb].name, False) + "(" + stripClean(f.husb) + ") was younger than 14 when he got married.\n"
     return errors
 
+# def checkUS11():
+#     '''Checks if someone is married to multiple people at the same time.'''
+#     errors = ""
+#     for x in INDIVIDUALS:
+#         i = INDIVIDUALS[x]
+#         if i.Spouse == "":
+#             continue
+#         else:
+#             i = 0;
+#             for s in i.Spouse:
+#                 i+=1
+#             if i > 1:
+#                 errors += 'Anomaly US11: ' + stripClean(i.name) + ' + is married to multiple people.\n'
+#     return errors        
+
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
         Labeled as an anomaly because of adoptions or step-siblings.'''
@@ -465,6 +482,28 @@ def checkUS12():
             if hAgeDif >= 80:
                 errors += "Error US12: Father " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + "(" + INDIVIDUALS[FAMILIES[fam].husb].idNum + ") is " + str(hAgeDif) + " years older than " + getPronoun(INDIVIDUALS[FAMILIES[fam].husb].sex) + " child, " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ").\n"
     return errors
+
+def checkUS14():
+    '''Checks if more than 5 children at once.'''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        children = f.chil
+        if len(children) < 5:
+            continue
+        else:
+            birthdays = []
+            for child in children:
+                birthdays.append(INDIVIDUALS[child].birth)
+            birthsCount = 0
+            for r in range(0, len(birthdays)-1):
+                if birthdays[r] == birthdays[r+1]:
+                    birthsCount += 1
+            if birthsCount >= 5:
+                errors += 'Anomaly US14: Family ' + stripClean(f.fam) + ' has ' + str(birthsCount) + ' children born on the same day.\n'
+    return errors
+                
+
 
 def checkUS15():
     '''Checks to make sure that there are at most 15 children in a family.'''
