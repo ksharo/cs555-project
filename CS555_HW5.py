@@ -458,10 +458,10 @@ def checkUS12():
         hBirth = INDIVIDUALS[FAMILIES[fam].husb].birth
         wBirth = INDIVIDUALS[FAMILIES[fam].wife].birth
         for c in FAMILIES[fam].chil:
-            wAgeDif = wBirth.year - INDIVIDUALS[c].birth.year - ((wBirth.month, wBirth.day) < (INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day))
+            wAgeDif = INDIVIDUALS[c].birth.year - wBirth.year - ((INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day) < (wBirth.month, wBirth.day))
             if wAgeDif >= 60:
                 errors += "Error US12: Mother " + stripClean(INDIVIDUALS[FAMILIES[fam].wife].name, False) + "(" + INDIVIDUALS[FAMILIES[fam].wife].idNum + ") is " + str(wAgeDif) + " years older than " + getPronoun(INDIVIDUALS[FAMILIES[fam].wife].sex) + " child, " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ").\n"
-            hAgeDif = hBirth.year - INDIVIDUALS[c].birth.year - ((hBirth.month, hBirth.day) < (INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day))
+            hAgeDif = INDIVIDUALS[c].birth.year - hBirth.year - ((INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day) < (hBirth.month, hBirth.day))
             if hAgeDif >= 80:
                 errors += "Error US12: Father " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + "(" + INDIVIDUALS[FAMILIES[fam].husb].idNum + ") is " + str(hAgeDif) + " years older than " + getPronoun(INDIVIDUALS[FAMILIES[fam].husb].sex) + " child, " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ").\n"
     return errors
