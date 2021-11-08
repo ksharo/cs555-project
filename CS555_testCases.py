@@ -378,19 +378,19 @@ class TestUS09(unittest.TestCase):
                          "Should print three birth after mother's death errors")
         f.close()
 
-# class TestUS11(unittest.TestCase):
-#     def testNoBigamy(self):
-#         f = open('./TestFiles/valid.ged', 'r')
-#         parseFile(f, True)
-#         self.assertEqual(checkUS12(), "", "Should print no errors")
-#         f.close()
+class TestUS11(unittest.TestCase):
+    def testNoBigamy(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS11(), "", "Should print no errors")
+        f.close()
 
-#     def testBigamy(self):
-#         f = open('./TestFiles/US11/us11test2_input.ged', 'r')
-#         parseFile(f, True)
-#         self.assertEqual(checkUS11(),
-#                          "'Anomaly US11: April Thomas is married to multiple people.\n")
-#         f.close()
+    def testBigamy(self):
+        f = open('./TestFiles/US11/us11test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS11(),
+                         "Anomaly US11: Family F600000017840325486 has multiple wives.\n")
+        f.close()
 
 class TestUS12(unittest.TestCase):
     def testGoodAges(self):

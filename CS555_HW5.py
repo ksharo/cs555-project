@@ -175,7 +175,7 @@ def parseFile(file, test=False):
         errors += checkUS08() + "\n"
         errors += checkUS09() + "\n"
         errors += checkUS10() + "\n"
-        # errors += checkUS11() + "\n"
+        errors += checkUS11() + "\n"
         errors += checkUS12() + "\n"
         errors += checkUS13() + "\n"
         errors += checkUS14() + "\n"
@@ -424,20 +424,20 @@ def checkUS10():
                 errors += "Error US10: " + stripClean(INDIVIDUALS[f.husb].name, False) + "(" + stripClean(f.husb) + ") was younger than 14 when he got married.\n"
     return errors
 
-# def checkUS11():
-#     '''Checks if someone is married to multiple people at the same time.'''
-#     errors = ""
-#     for x in INDIVIDUALS:
-#         i = INDIVIDUALS[x]
-#         if i.Spouse == "":
-#             continue
-#         else:
-#             i = 0;
-#             for s in i.Spouse:
-#                 i+=1
-#             if i > 1:
-#                 errors += 'Anomaly US11: ' + stripClean(i.name) + ' + is married to multiple people.\n'
-#     return errors        
+def checkUS11():
+    '''Checks if someone is married to multiple people at the same time.'''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        wives = f.wife
+        hubs = f.husb
+        print(f.wife)
+        if len(wives) > 1:
+            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple wives.\n'
+        if len(hubs) > 1:
+            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
+            
+    return errors        
 
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
