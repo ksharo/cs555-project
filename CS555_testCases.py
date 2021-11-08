@@ -389,7 +389,7 @@ class TestUS12(unittest.TestCase):
         f = open('./TestFiles/US12/us12test2_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS12(),
-                         "Error US12: Mother Sarah Alanson (I6000000178401456922) is 1000 years older than her child, Elijah Thomas (I6000000178403660843).\n")
+                         "Error US12: Mother Sarah Alanson (I6000000178401456922) is 1000 years older than her child, Billy Alanson (I6000000178403660843).\n")
         f.close()
     def testBadFatherAge(self):
         f = open('./TestFiles/US12/us12test3_input.ged', 'r')
@@ -398,6 +398,7 @@ class TestUS12(unittest.TestCase):
                          "Error US12: Father Julius Lexus (I6000000178403393861) is 973 years older than his child, Winter Thomas (I6000000178403503840).\n")
         f.close()
     def testBadBothAge(self):
+        self.maxDiff = None
         f = open('./TestFiles/US12/us12test4_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS12(),
