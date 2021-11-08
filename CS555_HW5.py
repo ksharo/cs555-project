@@ -514,6 +514,10 @@ def checkUS15():
         if len(children) > 15:
             errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
     return errors
+'''def checkUS16():
+    Checks to make sure that all the males in the family has same last names.
+    errors = ""
+    for fam in FAMILIES:'''
 
 def checkUS18():
     """
