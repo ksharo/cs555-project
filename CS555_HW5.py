@@ -523,9 +523,13 @@ def checkUS16():
         husband = INDIVIDUALS[f.husb].name
         if INDIVIDUALS[f.chil].sex == 'M':
             if INDIVIDUALS[f.chil].name != husband:
-                errors += "Error US16: " + getPronoun(INDIVIDUALS[FAMILIES[fam].husb].name) + "is not as same as the last name of husband's last name" + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
+                errors += "Error US16: " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name) + "is not as same as the last name of husband's last name " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
 
     return errors
+
+def checkUS17():
+    '''Checks to make sure that parents are not married to their descendants'''
+    errors = ""
 
 
 def checkUS18():
