@@ -514,10 +514,19 @@ def checkUS15():
         if len(children) > 15:
             errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
     return errors
-'''def checkUS16():
-    Checks to make sure that all the males in the family has same last names.
+
+def checkUS16():
+    '''Checks to make sure that all the males in the family has same last names.'''
     errors = ""
-    for fam in FAMILIES:'''
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        husband = INDIVIDUALS[f.husb].name
+        if INDIVIDUALS[f.chil].sex == 'M':
+            if INDIVIDUALS[f.chil].name != husband:
+                errors += "Error US16: " + getPronoun(INDIVIDUALS[FAMILIES[fam].husb].name) + "is not as same as the last name of husband's last name" + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
+
+    return errors
+
 
 def checkUS18():
     """

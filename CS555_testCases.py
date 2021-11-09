@@ -493,7 +493,11 @@ class TestUS14(unittest.TestCase):
         self.assertEqual(checkUS14(),
                          "Anomaly US14: Family F6000000178403254865 has 7 children born on the same day.\n")
         f.close()
-
+class TestUS16(unittest.TestCase):
+    def testMaleNames(self):
+        f = open('./TestFiles/US16/us16test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(())
 class TestUS18(unittest.TestCase):
     def testGoodMarriages(self):
         f = open('./TestFiles/valid.ged', 'r')
