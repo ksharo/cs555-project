@@ -1,5 +1,5 @@
 '''
-    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
+    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle, Leela Mallela
     Pledge: I pledge my honor that I have abided by the Stevens Honor System.
     Description: CS 555 Homework 03: Pair Programming
 '''
@@ -530,16 +530,21 @@ def checkUS16():
                     errors += "Error US16: " + stripClean(INDIVIDUALS[c].name, False) + "is not as same as their father's last name " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
     return errors
 
-
-'''def checkUS17():
-    Checks to make sure that parents are not married to their descendants
+def checkUS17():
+    '''Checks to make sure that parents are not married to their descendants'''
     errors = ""
     for fam in FAMILIES:
         f = FAMILIES[fam]
-        for ch in INDIVIDUALS[f.chil] != '':'''
+        husb_id = INDIVIDUALS[f.husb].idNum
+        wife_id = INDIVIDUALS[f.wife].idNum
+        for c in f.chil:
+            ch = INDIVIDUALS[c].idNum
+            if ch == husb_id :
+                errors += "Errors US17: " + stripClean(INDIVIDUALS[f.husb].name,False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
+            if ch == wife_id :
+                errors += "Errors US17: " + stripClean(INDIVIDUALS[f.wife].name,False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
 
-
-
+    return errors
 
 
 def checkUS18():

@@ -502,6 +502,13 @@ class TestUS16(unittest.TestCase):
                          "Error US16: Elijah John is not as same as their father's last name Ned Thomas. \n")
         f.close()
 
+class TestUS17(unittest.TestCase):
+    def testMarriageDescendants(self):
+        f = open('./TestFiles/US17/us17test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS17(),
+                         "Error US16: Jennifer Thomas is married to the descendant MARNM Thomas. \n")
+        f.close()
 class TestUS18(unittest.TestCase):
     def testGoodMarriages(self):
         f = open('./TestFiles/valid.ged', 'r')
