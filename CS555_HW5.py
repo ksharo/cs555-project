@@ -1,5 +1,5 @@
 '''
-    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle, Leela Mallela
+    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
     Pledge: I pledge my honor that I have abided by the Stevens Honor System.
     Description: CS 555 Homework 03: Pair Programming
 '''
@@ -180,6 +180,8 @@ def parseFile(file, test=False):
         errors += checkUS13() + "\n"
         errors += checkUS14() + "\n"
         errors += checkUS15() + "\n"
+        errors += checkUS16() + "\n"
+        errors += checkUS17() + "\n"
         errors += checkUS18() + "\n"
         print(errors)
 
@@ -424,21 +426,6 @@ def checkUS10():
                 errors += "Error US10: " + stripClean(INDIVIDUALS[f.husb].name, False) + "(" + stripClean(f.husb) + ") was younger than 14 when he got married.\n"
     return errors
 
-def checkUS11():
-    '''Checks if someone is married to multiple people at the same time.'''
-    errors = ""
-    for fam in FAMILIES:
-        f = FAMILIES[fam]
-        wives = f.wife
-        hubs = f.husb
-        print(f.wife)
-        if len(wives) > 1:
-            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple wives.\n'
-        if len(hubs) > 1:
-            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
-            
-    return errors        
-
 def checkUS13():
     '''Checks the dates each sibling was born to make sure they are logical.
         Labeled as an anomaly because of adoptions or step-siblings.'''
@@ -465,6 +452,20 @@ def checkUS13():
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
+
+def checkUS11():
+    '''Checks if someone is married to multiple people at the same time.'''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        wives = f.wife
+        hubs = f.husb
+        if len(wives) > 1:
+            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple wives.\n'
+        if len(hubs) > 1:
+            errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
+
+    return errors
 def checkUS12():
     """
     Checks to make sure that a children's parents are not too old.
@@ -475,14 +476,23 @@ def checkUS12():
         hBirth = INDIVIDUALS[FAMILIES[fam].husb].birth
         wBirth = INDIVIDUALS[FAMILIES[fam].wife].birth
         for c in FAMILIES[fam].chil:
-            wAgeDif = wBirth.year - INDIVIDUALS[c].birth.year - ((wBirth.month, wBirth.day) < (INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day))
+            wAgeDif = INDIVIDUALS[c].birth.year - wBirth.year - ((INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day) < (wBirth.month, wBirth.day))
             if wAgeDif >= 60:
                 errors += "Error US12: Mother " + stripClean(INDIVIDUALS[FAMILIES[fam].wife].name, False) + "(" + INDIVIDUALS[FAMILIES[fam].wife].idNum + ") is " + str(wAgeDif) + " years older than " + getPronoun(INDIVIDUALS[FAMILIES[fam].wife].sex) + " child, " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ").\n"
-            hAgeDif = hBirth.year - INDIVIDUALS[c].birth.year - ((hBirth.month, hBirth.day) < (INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day))
+            hAgeDif = INDIVIDUALS[c].birth.year - hBirth.year - ((INDIVIDUALS[c].birth.month, INDIVIDUALS[c].birth.day) < (hBirth.month, hBirth.day))
             if hAgeDif >= 80:
                 errors += "Error US12: Father " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + "(" + INDIVIDUALS[FAMILIES[fam].husb].idNum + ") is " + str(hAgeDif) + " years older than " + getPronoun(INDIVIDUALS[FAMILIES[fam].husb].sex) + " child, " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ").\n"
     return errors
 
+def checkUS15():
+    '''Checks to make sure that there are at most 15 children in a family.'''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        children = f.chil
+        if len(children) > 15:
+            errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
+    return errors
 def checkUS14():
     '''Checks if more than 5 children at once.'''
     errors = ""
@@ -502,31 +512,19 @@ def checkUS14():
             if birthsCount >= 5:
                 errors += 'Anomaly US14: Family ' + stripClean(f.fam) + ' has ' + str(birthsCount) + ' children born on the same day.\n'
     return errors
-                
-
-
-def checkUS15():
-    '''Checks to make sure that there are at most 15 children in a family.'''
-    errors = ""
-    for fam in FAMILIES:
-        f = FAMILIES[fam]
-        children = f.chil
-        if len(children) > 15:
-            errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
-    return errors
 
 def checkUS16():
     '''Checks to make sure that all the males in the family has same last names.'''
     errors = ""
     for fam in FAMILIES:
         f = FAMILIES[fam]
-        husband = INDIVIDUALS[f.husb].name.split()
+        husband = stripClean(INDIVIDUALS[f.husb].name, False).split()
         husb_last = husband[1]
         for c in f.chil:
-            ch = INDIVIDUALS[c].name.split()
+            ch = stripClean(INDIVIDUALS[c].name, False).split()
             ch_last = ch[1]
             if INDIVIDUALS[c].sex.strip() == 'M':
-                if ch_last != husb_last :
+                if ch_last != husb_last:
                     errors += "Error US16: " + stripClean(INDIVIDUALS[c].name, False) + "is not as same as their father's last name " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
     return errors
 
@@ -539,13 +537,12 @@ def checkUS17():
         wife_id = INDIVIDUALS[f.wife].idNum
         for c in f.chil:
             ch = INDIVIDUALS[c].idNum
-            if ch == husb_id :
-                errors += "Errors US17: " + stripClean(INDIVIDUALS[f.husb].name,False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
-            if ch == wife_id :
-                errors += "Errors US17: " + stripClean(INDIVIDUALS[f.wife].name,False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
+            if ch == husb_id:
+                errors += "Error US17: " + stripClean(INDIVIDUALS[f.wife].name, False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
+            if ch == wife_id:
+                errors += "Error US17: " + stripClean(INDIVIDUALS[f.husb].name, False) + " is married to the descendant " + stripClean(INDIVIDUALS[c].name, False) + ".\n"
 
     return errors
-
 
 def checkUS18():
     """
