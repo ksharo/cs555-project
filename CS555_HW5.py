@@ -520,17 +520,26 @@ def checkUS16():
     errors = ""
     for fam in FAMILIES:
         f = FAMILIES[fam]
-        husband = INDIVIDUALS[f.husb].name
-        if INDIVIDUALS[f.chil].sex == 'M':
-            if INDIVIDUALS[f.chil].name != husband:
-                errors += "Error US16: " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name) + "is not as same as the husband's last name " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
-
+        husband = INDIVIDUALS[f.husb].name.split()
+        husb_last = husband[1]
+        for c in f.chil:
+            ch = INDIVIDUALS[c].name.split()
+            ch_last = ch[1]
+            if INDIVIDUALS[c].sex == 'M':
+                if ch_last != husb_last :
+                    errors += "Error US16: " + stripClean(INDIVIDUALS[c].name, False) + "is not as same as their father's last name " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + ".\n"
     return errors
 
-def checkUS17():
-    '''Checks to make sure that parents are not married to their descendants'''
+
+'''def checkUS17():
+    Checks to make sure that parents are not married to their descendants
     errors = ""
-    for fam in FAMILIES
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        for ch in INDIVIDUALS[f.chil] != '':'''
+
+
+
 
 
 def checkUS18():
