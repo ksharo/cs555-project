@@ -598,6 +598,8 @@ def areCousins(p1, p2):
 
 def areSiblings(p1, p2):
     ''' returns true if p1 and p2 are siblings, false otherwise'''
+    if INDIVIDUALS[p1].famc == [] or INDIVIDUALS[p2].famc == []:
+        return False
     if INDIVIDUALS[p1].famc == INDIVIDUALS[p2].famc:
         return True
     return False
