@@ -601,7 +601,6 @@ def areSiblings(p1, p2):
     if INDIVIDUALS[p1].famc == '' or INDIVIDUALS[p2].famc == '':
         return False
     if INDIVIDUALS[p1].famc == INDIVIDUALS[p2].famc:
-        print(INDIVIDUALS[p1].famc, INDIVIDUALS[p2].famc)
         return True
     return False
 
