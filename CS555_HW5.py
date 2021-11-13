@@ -86,8 +86,8 @@ def parseFile(file, test=False):
             sex = ''
             birth = ''
             death = ''
-            famc = []
-            fams = []
+            famc = ''
+            fams = ''
 
         # start new dictionary entry for each new family id and reset the relevant fields
         if tag == "FAM":
@@ -110,10 +110,10 @@ def parseFile(file, test=False):
             sex = args
 
         if tag == "FAMC":
-            famc.append(stripClean(args))
+            famc = stripClean(args)
 
         if tag == "FAMS":
-            fams.append(stripClean(args))
+            fams = stripClean(args)
 
         if tag == "WIFE":
             wife = stripClean(args)
@@ -185,6 +185,7 @@ def parseFile(file, test=False):
         errors += checkUS18() + "\n"
         errors += checkUS19() + "\n"
         errors += checkUS20() + "\n"
+        errors += checkUS26() + "\n"
         print(errors)
 
 def stripClean(x, spaces=True):
@@ -208,16 +209,16 @@ def printIndOutput():
         alive = True
         death = 'NA'
         today = date.today()
-        age = today.year - record.birth.year - ((today.month, today.day) < (record.birth.month, record.birth.day))
+        age = checkUS27(record.birth.year, record.birth.month, record.birth.day, True, 0, 0, 0)
         if record.death != '':
             alive = False
             death = record.death
-            age = record.death.year - record.birth.year - ((record.death.month, record.death.day) < (record.birth.month, record.birth.day))
+            age = checkUS27(record.birth.year, record.birth.month, record.birth.day, False, record.death.year, record.death.month, record.death.day)
         errors += checkUS07(age, record.idNum)
         # set child to family id or NA if not applicable
-        children = formatGroup(record.famc)
+        children = record.famc
         # set spouse to family id or NA if not applicable
-        spouses = formatGroup(record.fams)
+        spouses = record.fams
         # add the row to the table
         rowToAdd = [record.idNum, record.name, record.sex, record.birth, age, alive, death, children, spouses]
         indTable.add_row(rowToAdd)
@@ -404,14 +405,10 @@ def checkUS09():
                 pronoun = getPronoun(INDIVIDUALS[j].sex)
                 if(mothDeath != ""):
                     if(chilBirth-mothDeath).days >= 1:
-                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
-                        if s not in error:
-                            error += s
+                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
                 if(fathDeath != ""):
                     if(chilBirth-fathDeath).days >= 30*9:
-                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
-                        if s not in error:
-                            error += s
+                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
     return error
 
 
@@ -439,7 +436,6 @@ def checkUS13():
     errors = ''
     # go through each family record
     for fam in FAMILIES:
-        dates = []
         f = FAMILIES[fam]
         children = f.chil
         # if there are not two children to compare, skip the rest
@@ -459,6 +455,7 @@ def checkUS13():
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
+
 def checkUS11():
     '''Checks if someone is married to multiple people at the same time.'''
     errors = ""
@@ -472,7 +469,6 @@ def checkUS11():
             errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
 
     return errors
-
 def checkUS12():
     """
     Checks to make sure that a children's parents are not too old.
@@ -629,6 +625,37 @@ def checkUS22(args, tag):
         if args in INDIVIDUALS.keys():
             errors += "Error US22: Individual ID " + args + " already used.\n"
     return errors
+
+def checkUS26():
+    """
+    Makes sure that every family member is in their proper spot in the individuals object and every
+    individual is in their proper spot in the families objects.
+    :return: a string of errors
+    """
+    errors = ""
+    for f in FAMILIES:
+        if FAMILIES[f].husb not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].husb].fams != FAMILIES[f].fam:
+            errors += "Error US27: Husband "+stripClean(INDIVIDUALS[FAMILIES[f].husb].name, False)+"("+INDIVIDUALS[FAMILIES[f].husb].idNum+") is not properly in the individuals records.\n"
+        if FAMILIES[f].wife not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].wife].fams != FAMILIES[f].fam:
+            errors += "Error US27: Wife "+stripClean(INDIVIDUALS[FAMILIES[f].wife].name, False)+"("+INDIVIDUALS[FAMILIES[f].wife].idNum+") is not properly in the individuals records.\n"
+        for c in FAMILIES[f].chil:
+            if c not in INDIVIDUALS or INDIVIDUALS[c].famc != FAMILIES[f].fam:
+                errors += "Error US27: Child " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ") is not properly in the individuals records.\n"
+    for i in INDIVIDUALS:
+        if INDIVIDUALS[i].fams not in FAMILIES or (FAMILIES[INDIVIDUALS[i].fams].husb != INDIVIDUALS[i].idNum and FAMILIES[INDIVIDUALS[i].fams].wife != INDIVIDUALS[i].idNum):
+            errors += "Error US27: Spouse "+stripClean(INDIVIDUALS[i].name, False)+"("+INDIVIDUALS[i].idNum+") is not properly in the families records.\n"
+        if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
+            errors += "Error US27: Child "+stripClean(INDIVIDUALS[i].name, False)+"("+INDIVIDUALS[i].idNum+") is not properly in the families records.\n"
+    return errors
+
+def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
+    today = date.today()
+    if alive:
+        return today.year - year - ((today.month, today.day) < (month, day))
+    else:
+        return dYear - year - ((dMonth, dDay) < (month, day))
+
+
 
 ### CLASSES ###
 
