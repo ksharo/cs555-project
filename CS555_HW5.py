@@ -405,10 +405,14 @@ def checkUS09():
                 pronoun = getPronoun(INDIVIDUALS[j].sex)
                 if(mothDeath != ""):
                     if(chilBirth-mothDeath).days >= 1:
-                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
+                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
+                        if s not in error:
+                            error += s
                 if(fathDeath != ""):
                     if(chilBirth-fathDeath).days >= 30*9:
-                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
+                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
+                        if s not in error:
+                            error += s
     return error
 
 
@@ -436,6 +440,7 @@ def checkUS13():
     errors = ''
     # go through each family record
     for fam in FAMILIES:
+        dates = []
         f = FAMILIES[fam]
         children = f.chil
         # if there are not two children to compare, skip the rest
@@ -496,7 +501,6 @@ def checkUS15():
         if len(children) > 15:
             errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
     return errors
-
 def checkUS14():
     '''Checks if more than 5 children at once.'''
     errors = ""
@@ -594,8 +598,6 @@ def areCousins(p1, p2):
 
 def areSiblings(p1, p2):
     ''' returns true if p1 and p2 are siblings, false otherwise'''
-    if INDIVIDUALS[p1].famc == [] or INDIVIDUALS[p2].famc == []:
-        return False
     if INDIVIDUALS[p1].famc == INDIVIDUALS[p2].famc:
         return True
     return False
