@@ -492,6 +492,7 @@ class TestUS14(unittest.TestCase):
         self.assertEqual(checkUS14(),
                          "Anomaly US14: Family F6000000178403254865 has 7 children born on the same day.\n")
         f.close()
+
 class TestUS16(unittest.TestCase):
     def testMaleNames(self):
         f = open('./TestFiles/US16/us16test2_input.ged', 'r')
@@ -499,6 +500,7 @@ class TestUS16(unittest.TestCase):
         self.assertEqual(checkUS16(),
                          "Error US16: August Thomas is not as same as their father's last name Elijah John .\nError US16: Elijah John is not as same as their father's last name Ned Thomas .\n")
         f.close()
+
 class TestUS17(unittest.TestCase):
     def testMarriageDescendants(self):
         f = open('./TestFiles/US17/us17test2_input.ged', 'r')
@@ -506,6 +508,7 @@ class TestUS17(unittest.TestCase):
         self.assertEqual(checkUS17(),
                          "Error US17: Jennifer Thomas  is married to the descendant Elijah Thomas .\n")
         f.close()
+
 class TestUS18(unittest.TestCase):
     def testGoodMarriages(self):
         f = open('./TestFiles/valid.ged', 'r')
@@ -518,6 +521,20 @@ class TestUS18(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS18(),
                          "Error US18: August Thomas (I3634834) married his sibling, April Thomas (I3254861).\n")
+        f.close()
+
+class TestUS19(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS19(), "", "Should print no errors")
+        f.close()
+
+class TestUS20(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS20(), "", "Should print no errors")
         f.close()
 
 class TestUS22(unittest.TestCase):
