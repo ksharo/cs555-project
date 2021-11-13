@@ -559,7 +559,7 @@ def checkUS18():
     """
     errors = ""
     for fam in FAMILIES:
-        if INDIVIDUALS[FAMILIES[fam].husb].famc == INDIVIDUALS[FAMILIES[fam].wife].famc and INDIVIDUALS[FAMILIES[fam].husb].famc != []:
+        if INDIVIDUALS[FAMILIES[fam].husb].famc == INDIVIDUALS[FAMILIES[fam].wife].famc and INDIVIDUALS[FAMILIES[fam].husb].famc != '':
             errors += "Error US18: " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + "("+INDIVIDUALS[FAMILIES[fam].husb].idNum+") married "+getPronoun(INDIVIDUALS[FAMILIES[fam].husb].sex)+" sibling, " + stripClean(INDIVIDUALS[FAMILIES[fam].wife].name, False) + "("+INDIVIDUALS[FAMILIES[fam].wife].idNum+").\n"
     return errors
 
