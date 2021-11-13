@@ -529,12 +529,27 @@ class TestUS19(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS19(), "", "Should print no errors")
         f.close()
+    def testCousinMarriage(self):
+        f = open('./TestFiles/US19/us19test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS19(), "Error US19: Ron Swanson (I0576) married his cousin, Diane Someone (I0618).\n", "Should print error with Ron first.")
+        f.close()
 
 class TestUS20(unittest.TestCase):
     def testGoodInput(self):
         f = open('./TestFiles/valid.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS20(), "", "Should print no errors")
+        f.close()
+    def testOneBadMarriage(self):
+        f = open('./TestFiles/US20/us20test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS20(), "Error US20: Ann Perkins (I0572) married her nephew, Chris Traeger (I0617).\n", "Should print one error.")
+        f.close()
+    def testManyBadMarriages(self):
+        f = open('./TestFiles/US20/us20test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS20(), "Error US20: Ann Perkins (I0572) married her nephew, Chris Traeger (I0617).\nError US20: Diane Someone (I0618) married her nephew, Ron Swanson (I0576).\nError US20: Fairway Frank (I0574) married her nephew, Champion Dwyer (I0600).\n", "Should print three errors.")
         f.close()
 
 class TestUS22(unittest.TestCase):
