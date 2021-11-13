@@ -183,6 +183,8 @@ def parseFile(file, test=False):
         errors += checkUS16() + "\n"
         errors += checkUS17() + "\n"
         errors += checkUS18() + "\n"
+        errors += checkUS19() + "\n"
+        errors += checkUS20() + "\n"
         print(errors)
 
 def stripClean(x, spaces=True):
@@ -402,10 +404,14 @@ def checkUS09():
                 pronoun = getPronoun(INDIVIDUALS[j].sex)
                 if(mothDeath != ""):
                     if(chilBirth-mothDeath).days >= 1:
-                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
+                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born after the death of " + pronoun + " mother.\n"
+                        if s not in error:
+                            error += s
                 if(fathDeath != ""):
                     if(chilBirth-fathDeath).days >= 30*9:
-                        error += "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
+                        s = "Error US09: " + stripClean(INDIVIDUALS[j].name, False) + "(" + stripClean(j) + ") was born more than 9 months after the death of " + pronoun + " father.\n"
+                        if s not in error:
+                            error += s
     return error
 
 
@@ -433,6 +439,7 @@ def checkUS13():
     errors = ''
     # go through each family record
     for fam in FAMILIES:
+        dates = []
         f = FAMILIES[fam]
         children = f.chil
         # if there are not two children to compare, skip the rest
@@ -452,7 +459,6 @@ def checkUS13():
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
-
 def checkUS11():
     '''Checks if someone is married to multiple people at the same time.'''
     errors = ""
@@ -466,6 +472,7 @@ def checkUS11():
             errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
 
     return errors
+
 def checkUS12():
     """
     Checks to make sure that a children's parents are not too old.
@@ -555,6 +562,59 @@ def checkUS18():
             errors += "Error US18: " + stripClean(INDIVIDUALS[FAMILIES[fam].husb].name, False) + "("+INDIVIDUALS[FAMILIES[fam].husb].idNum+") married "+getPronoun(INDIVIDUALS[FAMILIES[fam].husb].sex)+" sibling, " + stripClean(INDIVIDUALS[FAMILIES[fam].wife].name, False) + "("+INDIVIDUALS[FAMILIES[fam].wife].idNum+").\n"
     return errors
 
+def checkUS19():
+    '''Checks to make sure first cousins are not married.'''
+    errors = ''
+    for fam in FAMILIES:
+        husb = FAMILIES[fam].husb
+        wife = FAMILIES[fam].wife
+        if areCousins(husb, wife):
+            errors += "Error US19: " + stripClean(INDIVIDUALS[husb].name, False) + "(" + stripClean(husb) + ") married " + getPronoun(INDIVIDUALS[husb].sex) + " cousin, " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ").\n"
+    return errors
+
+def checkUS20():
+    '''Checks to make sure aunts and uncles do not marry their nieces and nephews.'''
+    errors = ''
+    for fam in FAMILIES:
+        husb = FAMILIES[fam].husb
+        wife = FAMILIES[fam].wife
+        if isAuntUncle(husb, wife):
+            errors += "Error US20: " + stripClean(INDIVIDUALS[husb].name, False) + "(" + stripClean(husb) + ") married " + getPronoun(INDIVIDUALS[husb].sex) + " niece, " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ").\n"
+        if isAuntUncle(wife, husb):
+            errors += "Error US20: " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ") married " + getPronoun(INDIVIDUALS[wife].sex) + " nephew, " + stripClean(INDIVIDUALS[husb].name, False) + "(" + stripClean(husb) + ").\n"
+    return errors
+
+def areCousins(p1, p2):
+    '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
+    (dad1, mom1) = getParents(p1)
+    (dad2, mom2) = getParents(p2)
+    if dad1 == '' or dad2 == '':
+        # not enough information to tell! parents don't exist in our database
+        return False
+    if areSiblings(dad1, dad2) or areSiblings(mom1, mom2) or areSiblings(dad1, mom2) or areSiblings(dad2, mom1):
+        return True
+    return False
+
+def areSiblings(p1, p2):
+    ''' returns true if p1 and p2 are siblings, false otherwise'''
+    if INDIVIDUALS[p1].famc == INDIVIDUALS[p2].famc:
+        return True
+    return False
+
+def isAuntUncle(p1, p2):
+    '''Checks if p1 is p2's aunt or uncle. Returns true if so, false otherwise.'''
+    (dad, mom) = getParents(p2)
+    if dad != '' and mom != '':
+        if areSiblings(dad, p1) or areSiblings(mom, p1):
+            return True
+    return False
+
+def getParents(p):
+    '''Returns the parent ids of individual p as a tuple, empty if no parents are recorded.'''
+    for fam in FAMILIES:
+        if p in FAMILIES[fam].chil:
+            return(FAMILIES[fam].husb, FAMILIES[fam].wife)
+    return ('', '')
 
 def checkUS22(args, tag):
     '''Check to ensure that no family or individual id is used more than once.'''
