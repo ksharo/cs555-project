@@ -645,7 +645,7 @@ def checkUS22(args, tag):
     return errors
 
 def checkUS23():
-    ''''''
+    '''Tests if all individuals have a unique name and birthday'''
     errors = ""
     names = []
     birthdays = []
