@@ -627,6 +627,27 @@ class TestUS22(unittest.TestCase):
                          "Should print two errors.")
         f.close()
 
+class TestUS23(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS23(), "", "Should print no errors")
+        f.close()
+    def testSameName(self):
+        f = open('./TestFiles/US23/us23test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS23(), "", "Should print no errors")
+        f.close()
+    def testBirthday(self):
+        f = open('./TestFiles/US23/us23test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS23(), "", "Should print no errors")
+        f.close()     
+    def testError(self):
+        f = open('./TestFiles/US23/us23test4_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS23(), "Error US23: Elijah Thomas appears in the file multiple times.\n", "Should print one error.")
+        f.close()
 
 if __name__ == "__main__":
     # run all the tests

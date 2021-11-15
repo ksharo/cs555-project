@@ -647,11 +647,21 @@ def checkUS22(args, tag):
 def checkUS23():
     ''''''
     errors = ""
-
-    # for ind in INDIVIDUALS:
-    #     ind1 = ind
-
-    return errors    
+    names = []
+    birthdays = []
+    for ind in INDIVIDUALS:
+        names.append(INDIVIDUALS[ind].name)
+        birthdays.append(INDIVIDUALS[ind].birth)
+    for i in range(0, len(INDIVIDUALS)-1):
+        name1 = names[i]
+        for j in range(i+1, len(INDIVIDUALS)):
+            name2 = names[j]
+            if name1 == name2:
+                if birthdays[i] == birthdays[j]:
+                    errors += "Error US23: " + stripClean(name1, False) + "appears in the file multiple times.\n"
+                    print('error')
+    return errors
+       
 
 def checkUS26():
     """
