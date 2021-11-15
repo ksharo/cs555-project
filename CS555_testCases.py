@@ -552,6 +552,23 @@ class TestUS20(unittest.TestCase):
         self.assertEqual(checkUS20(), "Error US20: Ann Perkins (I0572) married her nephew, Chris Traeger (I0617).\nError US20: Diane Someone (I0618) married her nephew, Ron Swanson (I0576).\nError US20: Fairway Frank (I0574) married her nephew, Champion Dwyer (I0600).\n", "Should print three errors.")
         f.close()
 
+class TestUS21(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS21(), "", "Should print no errors")
+        f.close()
+    def testWrongGenderHusb(self):
+        f = open('./TestFiles/US21/us21test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS21(), "Error US21: Husband Elijah Thomas (I6000000178400484002) is assigned the wrong gender for role.\n", "Should print one error.")
+        f.close()
+    def testWrongGenderWife(self):
+        f = open('./TestFiles/US21/us21test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS21(), "Error US21: Wife Jennifer Thomas (I6000000178403254861) is assigned the wrong gender for role.\n", "Should print one error.")
+        f.close()
+
 class TestUS22(unittest.TestCase):
     def testGoodIDs(self):
         """

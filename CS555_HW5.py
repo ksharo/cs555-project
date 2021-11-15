@@ -185,6 +185,8 @@ def parseFile(file, test=False):
         errors += checkUS18() + "\n"
         errors += checkUS19() + "\n"
         errors += checkUS20() + "\n"
+        errors += checkUS21() + "\n"
+        errors += checkUS23() + "\n"
         errors += checkUS26() + "\n"
         print(errors)
 
@@ -585,6 +587,18 @@ def checkUS20():
             errors += "Error US20: " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ") married " + getPronoun(INDIVIDUALS[wife].sex) + " nephew, " + stripClean(INDIVIDUALS[husb].name, False) + "(" + stripClean(husb) + ").\n"
     return errors
 
+def checkUS21():
+    '''Tests if individuals have the correct gender based on role in marriage.'''
+    errors = ''
+    for fam in FAMILIES:
+        husb = FAMILIES[fam].husb
+        wife = FAMILIES[fam].wife
+        if INDIVIDUALS[husb].sex.strip() == 'F':
+            errors += "Error US21: Husband " + stripClean(INDIVIDUALS[husb].name, False) + "(" + stripClean(husb) + ") is assigned the wrong gender for role.\n"
+        if INDIVIDUALS[wife].sex.strip() == 'M':
+            errors += "Error US21: Wife " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ") is assigned the wrong gender for role.\n"
+    return errors
+
 def areCousins(p1, p2):
     '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
     (dad1, mom1) = getParents(p1)
@@ -629,6 +643,15 @@ def checkUS22(args, tag):
         if args in INDIVIDUALS.keys():
             errors += "Error US22: Individual ID " + args + " already used.\n"
     return errors
+
+def checkUS23():
+    ''''''
+    errors = ""
+
+    # for ind in INDIVIDUALS:
+    #     ind1 = ind
+
+    return errors    
 
 def checkUS26():
     """
