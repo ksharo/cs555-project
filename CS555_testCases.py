@@ -648,6 +648,22 @@ class TestUS23(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS23(), "Error US23: Elijah Thomas appears in the file multiple times.\n", "Should print one error.")
         f.close()
+class TestUS25(unittest.TestCase):
+    def testSimilarName(self):
+        f = open('./TestFiles/US25/us25test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "", "Should print no errors")
+        f.close()
+    def testSimilarBirthDate(self):
+        f = open('./TestFiles/US23/us25test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "", "Should print no errors")
+        f.close()
+    def testError(self):
+        f = open('./TestFiles/US25/us25test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "Error US25: April Thomas and 17 JAN 2021 appears in the file multiple times.\n")
+        f.close()
 
 if __name__ == "__main__":
     # run all the tests

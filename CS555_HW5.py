@@ -599,6 +599,93 @@ def checkUS21():
             errors += "Error US21: Wife " + stripClean(INDIVIDUALS[wife].name, False) + "(" + stripClean(wife) + ") is assigned the wrong gender for role.\n"
     return errors
 
+def checkUS22(args, tag):
+    '''Check to ensure that no family or individual id is used more than once.'''
+    errors = ""
+    if tag:
+        if args in FAMILIES.keys():
+            errors += "Error US22: Family ID " + args + " already used.\n"
+    else:
+        if args in INDIVIDUALS.keys():
+            errors += "Error US22: Individual ID " + args + " already used.\n"
+    return errors
+
+
+def checkUS23():
+    '''Tests if all individuals have a unique name and birthday'''
+    errors = ""
+    names = []
+    birthdays = []
+    for ind in INDIVIDUALS:
+        names.append(INDIVIDUALS[ind].name)
+        birthdays.append(INDIVIDUALS[ind].birth)
+    for i in range(0, len(INDIVIDUALS) - 1):
+        name1 = names[i]
+        for j in range(i + 1, len(INDIVIDUALS)):
+            name2 = names[j]
+            if name1 == name2:
+                if birthdays[i] == birthdays[j]:
+                    errors += "Error US23: " + stripClean(name1, False) + "appears in the file multiple times.\n"
+                    print('error')
+    return errors
+
+
+def checkUS25():
+    '''
+    Tests all the names of children and their birth dates within a family are unique.
+    '''
+    errors = ""
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        for i in range(0, len(f.chil) - 1):
+            chil_name1 = f.chil[i].name
+            chil_bd1 = f.chil[i].birth
+            for j in range(i + 1, len(f.chil)):
+                chil_name2 = f.chil[j].name
+                chil_bd2 = f.chil[j].birth
+                if chil_name1 == chil_name2:
+                    if chil_bd1 == chil_bd2:
+                        errors += "Error US25: " + stripClean(chil_name1, False) +" and"+ stripClean(chil_bd1, False) + " appears in the file multiple times.\n"
+                else:
+                    errors += ""
+    return errors
+
+def checkUS26():
+    """
+    Makes sure that every family member is in their proper spot in the individuals object and every
+    individual is in their proper spot in the families objects.
+    :return: a string of errors
+    """
+    errors = ""
+    for f in FAMILIES:
+        if FAMILIES[f].husb not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].husb].fams != FAMILIES[f].fam:
+            errors += "Error US27: Husband " + stripClean(INDIVIDUALS[FAMILIES[f].husb].name, False) + "(" + \
+                      INDIVIDUALS[FAMILIES[f].husb].idNum + ") is not properly in the individuals records.\n"
+        if FAMILIES[f].wife not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].wife].fams != FAMILIES[f].fam:
+            errors += "Error US27: Wife " + stripClean(INDIVIDUALS[FAMILIES[f].wife].name, False) + "(" + INDIVIDUALS[
+                FAMILIES[f].wife].idNum + ") is not properly in the individuals records.\n"
+        for c in FAMILIES[f].chil:
+            if c not in INDIVIDUALS or INDIVIDUALS[c].famc != FAMILIES[f].fam:
+                errors += "Error US27: Child " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[
+                    c].idNum + ") is not properly in the individuals records.\n"
+    for i in INDIVIDUALS:
+        if INDIVIDUALS[i].fams not in FAMILIES or (
+                FAMILIES[INDIVIDUALS[i].fams].husb != INDIVIDUALS[i].idNum and FAMILIES[INDIVIDUALS[i].fams].wife !=
+                INDIVIDUALS[i].idNum):
+            errors += "Error US27: Spouse " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[
+                i].idNum + ") is not properly in the families records.\n"
+        if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
+            errors += "Error US27: Child " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[
+                i].idNum + ") is not properly in the families records.\n"
+    return errors
+
+
+def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
+    today = date.today()
+    if alive:
+        return today.year - year - ((today.month, today.day) < (month, day))
+    else:
+        return dYear - year - ((dMonth, dDay) < (month, day))
 def areCousins(p1, p2):
     '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
     (dad1, mom1) = getParents(p1)
@@ -632,65 +719,6 @@ def getParents(p):
         if p in FAMILIES[fam].chil:
             return(FAMILIES[fam].husb, FAMILIES[fam].wife)
     return ('', '')
-
-def checkUS22(args, tag):
-    '''Check to ensure that no family or individual id is used more than once.'''
-    errors = ""
-    if tag:
-        if args in FAMILIES.keys():
-            errors += "Error US22: Family ID " + args + " already used.\n"
-    else:
-        if args in INDIVIDUALS.keys():
-            errors += "Error US22: Individual ID " + args + " already used.\n"
-    return errors
-
-def checkUS23():
-    '''Tests if all individuals have a unique name and birthday'''
-    errors = ""
-    names = []
-    birthdays = []
-    for ind in INDIVIDUALS:
-        names.append(INDIVIDUALS[ind].name)
-        birthdays.append(INDIVIDUALS[ind].birth)
-    for i in range(0, len(INDIVIDUALS)-1):
-        name1 = names[i]
-        for j in range(i+1, len(INDIVIDUALS)):
-            name2 = names[j]
-            if name1 == name2:
-                if birthdays[i] == birthdays[j]:
-                    errors += "Error US23: " + stripClean(name1, False) + "appears in the file multiple times.\n"
-                    print('error')
-    return errors
-       
-
-def checkUS26():
-    """
-    Makes sure that every family member is in their proper spot in the individuals object and every
-    individual is in their proper spot in the families objects.
-    :return: a string of errors
-    """
-    errors = ""
-    for f in FAMILIES:
-        if FAMILIES[f].husb not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].husb].fams != FAMILIES[f].fam:
-            errors += "Error US27: Husband "+stripClean(INDIVIDUALS[FAMILIES[f].husb].name, False)+"("+INDIVIDUALS[FAMILIES[f].husb].idNum+") is not properly in the individuals records.\n"
-        if FAMILIES[f].wife not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].wife].fams != FAMILIES[f].fam:
-            errors += "Error US27: Wife "+stripClean(INDIVIDUALS[FAMILIES[f].wife].name, False)+"("+INDIVIDUALS[FAMILIES[f].wife].idNum+") is not properly in the individuals records.\n"
-        for c in FAMILIES[f].chil:
-            if c not in INDIVIDUALS or INDIVIDUALS[c].famc != FAMILIES[f].fam:
-                errors += "Error US27: Child " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[c].idNum + ") is not properly in the individuals records.\n"
-    for i in INDIVIDUALS:
-        if INDIVIDUALS[i].fams not in FAMILIES or (FAMILIES[INDIVIDUALS[i].fams].husb != INDIVIDUALS[i].idNum and FAMILIES[INDIVIDUALS[i].fams].wife != INDIVIDUALS[i].idNum):
-            errors += "Error US27: Spouse "+stripClean(INDIVIDUALS[i].name, False)+"("+INDIVIDUALS[i].idNum+") is not properly in the families records.\n"
-        if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
-            errors += "Error US27: Child "+stripClean(INDIVIDUALS[i].name, False)+"("+INDIVIDUALS[i].idNum+") is not properly in the families records.\n"
-    return errors
-
-def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
-    today = date.today()
-    if alive:
-        return today.year - year - ((today.month, today.day) < (month, day))
-    else:
-        return dYear - year - ((dMonth, dDay) < (month, day))
 
 
 
