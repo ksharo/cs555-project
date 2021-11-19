@@ -648,6 +648,22 @@ class TestUS23(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS23(), "Error US23: Elijah Thomas appears in the file multiple times.\n", "Should print one error.")
         f.close()
+class TestUS24(unittest.TestCase):
+    def testSimilarHusbName(self):
+        f = open('./TestFiles/US24/us24test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "", "Should print no errors")
+        f.close()
+    def testSimilarWifeName(self):
+        f = open('./TestFiles/US24/us24test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "", "Should print no errors")
+        f.close()
+    def testError(self):
+        f = open('./TestFiles/US25/us25test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS25(), "Error US24: Julius Lexus, Elijah John with marriage date 15 SEP 1995 appears in the multiple families.\n")
+        f.close()
 class TestUS25(unittest.TestCase):
     def testSimilarName(self):
         f = open('./TestFiles/US25/us25test3_input.ged', 'r')

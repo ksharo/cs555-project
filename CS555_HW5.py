@@ -629,6 +629,24 @@ def checkUS23():
                     print('error')
     return errors
 
+def checkUS24():
+    '''Tests all the names of spouses in all the families and checks if they're similar'''
+    errors = ""
+    for fam in FAMILIES:
+        husb = FAMILIES[fam].husb
+        wife = FAMILIES[fam].wife
+        mardate = FAMILIES[fam].marr
+        for fam1 in FAMILIES:
+            husb1 = FAMILIES[fam1].husb
+            wife1 = FAMILIES[fam1].wife
+            mardate1 = FAMILIES[fam1].marr
+            if husb == husb1:
+                if wife == wife1:
+                    if mardate == mardate1:
+                        errors += "Error US24: " + stripClean(husb, False) + ", " + stripClean(wife, False) + " with marriage date " + stripClean(mardate, False) + " appears in the multiple families.\n"
+            else:
+                errors += ""
+    return errors
 
 def checkUS25():
     '''
