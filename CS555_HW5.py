@@ -1,5 +1,5 @@
 '''
-    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle, Leela Mallela
+    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
     Pledge: I pledge my honor that I have abided by the Stevens Honor System.
     Description: CS 555 Homework 03: Pair Programming
 '''
@@ -187,6 +187,8 @@ def parseFile(file, test=False):
         errors += checkUS20() + "\n"
         errors += checkUS21() + "\n"
         errors += checkUS23() + "\n"
+        errors += checkUS24() + "\n"
+        errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
         print(errors)
 
@@ -632,20 +634,26 @@ def checkUS23():
 def checkUS24():
     '''Tests all the names of spouses in all the families and checks if they're similar'''
     errors = ""
+    i = 0
     for fam in FAMILIES:
+        j = 0
         husb = FAMILIES[fam].husb
         wife = FAMILIES[fam].wife
         mardate = FAMILIES[fam].marr
         for fam1 in FAMILIES:
+            if j < i:
+                j += 1
+                continue
             husb1 = FAMILIES[fam1].husb
             wife1 = FAMILIES[fam1].wife
             mardate1 = FAMILIES[fam1].marr
-            if husb == husb1:
-                if wife == wife1:
-                    if mardate == mardate1:
-                        errors += "Error US24: " + stripClean(husb, False) + ", " + stripClean(wife, False) + " with marriage date " + stripClean(mardate, False) + " appears in the multiple families.\n"
-            else:
-                errors += ""
+            j += 1
+            if fam != fam1:
+                if husb == husb1:
+                    if wife == wife1:
+                        if mardate == mardate1:
+                            errors += "Error US24: " + stripClean(husb, False) + ", " + stripClean(wife, False) + " with marriage date " + str(mardate) + " appears in the multiple families.\n"
+            i += 1
     return errors
 
 def checkUS25():
@@ -656,14 +664,14 @@ def checkUS25():
     for fam in FAMILIES:
         f = FAMILIES[fam]
         for i in range(0, len(f.chil) - 1):
-            chil_name1 = f.chil[i].name
-            chil_bd1 = f.chil[i].birth
+            chil_name1 = INDIVIDUALS[f.chil[i]].name
+            chil_bd1 = INDIVIDUALS[f.chil[i]].birth
             for j in range(i + 1, len(f.chil)):
-                chil_name2 = f.chil[j].name
-                chil_bd2 = f.chil[j].birth
+                chil_name2 = INDIVIDUALS[f.chil[j]].name
+                chil_bd2 = INDIVIDUALS[f.chil[j]].birth
                 if chil_name1 == chil_name2:
                     if chil_bd1 == chil_bd2:
-                        errors += "Error US25: " + stripClean(chil_name1, False) +" and"+ stripClean(chil_bd1, False) + " appears in the file multiple times.\n"
+                        errors += "Error US25: " + stripClean(chil_name1, False) +"and "+ str(chil_bd1) + " appears in the file multiple times.\n"
                 else:
                     errors += ""
     return errors
@@ -677,24 +685,19 @@ def checkUS26():
     errors = ""
     for f in FAMILIES:
         if FAMILIES[f].husb not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].husb].fams != FAMILIES[f].fam:
-            errors += "Error US27: Husband " + stripClean(INDIVIDUALS[FAMILIES[f].husb].name, False) + "(" + \
-                      INDIVIDUALS[FAMILIES[f].husb].idNum + ") is not properly in the individuals records.\n"
+            errors += "Error US26: Husband " + FAMILIES[f].husb + " is not properly in the individuals records.\n"
         if FAMILIES[f].wife not in INDIVIDUALS or INDIVIDUALS[FAMILIES[f].wife].fams != FAMILIES[f].fam:
-            errors += "Error US27: Wife " + stripClean(INDIVIDUALS[FAMILIES[f].wife].name, False) + "(" + INDIVIDUALS[
-                FAMILIES[f].wife].idNum + ") is not properly in the individuals records.\n"
+            errors += "Error US26: Wife " + FAMILIES[f].wife + " is not properly in the individuals records.\n"
         for c in FAMILIES[f].chil:
             if c not in INDIVIDUALS or INDIVIDUALS[c].famc != FAMILIES[f].fam:
-                errors += "Error US27: Child " + stripClean(INDIVIDUALS[c].name, False) + "(" + INDIVIDUALS[
-                    c].idNum + ") is not properly in the individuals records.\n"
+                errors += "Error US26: Child " + c + " is not properly in the individuals records.\n"
     for i in INDIVIDUALS:
-        if INDIVIDUALS[i].fams not in FAMILIES or (
-                FAMILIES[INDIVIDUALS[i].fams].husb != INDIVIDUALS[i].idNum and FAMILIES[INDIVIDUALS[i].fams].wife !=
-                INDIVIDUALS[i].idNum):
-            errors += "Error US27: Spouse " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[
-                i].idNum + ") is not properly in the families records.\n"
-        if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
-            errors += "Error US27: Child " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[
-                i].idNum + ") is not properly in the families records.\n"
+        if INDIVIDUALS[i].fams != "":
+            if INDIVIDUALS[i].fams not in FAMILIES or (FAMILIES[INDIVIDUALS[i].fams].husb != INDIVIDUALS[i].idNum and FAMILIES[INDIVIDUALS[i].fams].wife != INDIVIDUALS[i].idNum):
+                errors += "Error US26: Spouse " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[i].idNum + ") is not properly in the families records.\n"
+        if INDIVIDUALS[i].famc != "":
+            if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
+                errors += "Error US26: Child " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[i].idNum + ") is not properly in the families records.\n"
     return errors
 
 

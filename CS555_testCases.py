@@ -648,22 +648,24 @@ class TestUS23(unittest.TestCase):
         parseFile(f, True)
         self.assertEqual(checkUS23(), "Error US23: Elijah Thomas appears in the file multiple times.\n", "Should print one error.")
         f.close()
+
 class TestUS24(unittest.TestCase):
     def testSimilarHusbName(self):
         f = open('./TestFiles/US24/us24test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS25(), "", "Should print no errors")
+        self.assertEqual(checkUS24(), "", "Should print no errors")
         f.close()
     def testSimilarWifeName(self):
         f = open('./TestFiles/US24/us24test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS25(), "", "Should print no errors")
+        self.assertEqual(checkUS24(), "", "Should print no errors")
         f.close()
     def testError(self):
-        f = open('./TestFiles/US25/us25test2_input.ged', 'r')
+        f = open('./TestFiles/US24/us24test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS25(), "Error US24: Julius Lexus, Elijah John with marriage date 15 SEP 1995 appears in the multiple families.\n")
+        self.assertEqual(checkUS24(), "Error US24: I02319, I0417 with marriage date 2014-12-12 appears in the multiple families.\n")
         f.close()
+
 class TestUS25(unittest.TestCase):
     def testSimilarName(self):
         f = open('./TestFiles/US25/us25test3_input.ged', 'r')
@@ -671,15 +673,40 @@ class TestUS25(unittest.TestCase):
         self.assertEqual(checkUS25(), "", "Should print no errors")
         f.close()
     def testSimilarBirthDate(self):
-        f = open('./TestFiles/US23/us25test3_input.ged', 'r')
+        f = open('./TestFiles/US25/us25test3_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS25(), "", "Should print no errors")
         f.close()
     def testError(self):
         f = open('./TestFiles/US25/us25test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS25(), "Error US25: April Thomas and 17 JAN 2021 appears in the file multiple times.\n")
+        self.assertEqual(checkUS25(), "Error US25: April Thomas and 2021-01-17 appears in the file multiple times.\n")
         f.close()
+class TestUS26(unittest.TestCase):
+    def testGoodInput(self):
+        f = open('./TestFiles/US26/us26test1_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS26(), "", "Should print no errors")
+        f.close()
+
+    def testInFamNotIndi(self):
+        f = open('./TestFiles/US26/us26test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS26(), "Error US26: Child I0576 is not properly in the individuals records.\nError US26: Husband I0576 is not properly in the individuals records.\n", "Should print 2 errors")
+        f.close()
+
+    def testInIndiNotFam(self):
+        f = open('./TestFiles/US26/us26test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS26(), "Error US26: Husband I02319 is not properly in the individuals records.\nError US26: Spouse Ron Swanson (I0576) is not properly in the families records.\nError US26: Child Ron Swanson (I0576) is not properly in the families records.\n", "Should print 3 errors")
+        f.close()
+
+class TestUS27(unittest.TestCase):
+    def testAlivePerson(self):
+        self.assertEqual(checkUS27(2000,2,17,True,0,0,0), 21)
+
+    def testDeadPerson(self):
+        self.assertEqual(checkUS27(1905,1,1,False,1986,7,4), 81)
 
 if __name__ == "__main__":
     # run all the tests
