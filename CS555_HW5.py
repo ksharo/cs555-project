@@ -1,5 +1,5 @@
 '''
-    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
+    Authors: Kaitlyn Sharo, Logan Rechler, Mathieu Nagle, Leela Mallela
     Pledge: I pledge my honor that I have abided by the Stevens Honor System.
     Description: CS 555 Homework 03: Pair Programming
 '''
