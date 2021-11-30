@@ -628,7 +628,6 @@ def checkUS23():
             if name1 == name2:
                 if birthdays[i] == birthdays[j]:
                     errors += "Error US23: " + stripClean(name1, False) + "appears in the file multiple times.\n"
-                    print('error')
     return errors
 
 def checkUS24():
@@ -671,7 +670,9 @@ def checkUS25():
                 chil_bd2 = INDIVIDUALS[f.chil[j]].birth
                 if chil_name1 == chil_name2:
                     if chil_bd1 == chil_bd2:
-                        errors += "Error US25: " + stripClean(chil_name1, False) +"and "+ str(chil_bd1) + " appears in the file multiple times.\n"
+                        s = "Error US25: " + stripClean(chil_name1, False) +"and "+ str(chil_bd1) + " appears in the file multiple times.\n"
+                        if s not in errors:
+                            errors += s
                 else:
                     errors += ""
     return errors
