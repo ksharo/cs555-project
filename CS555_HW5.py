@@ -33,6 +33,7 @@ def parseFile(file, test=False):
     '''Parses a GEDCOM file based on the specifications given in the
         homework description. if test==True, don't print'''
     errors = ""
+    errors22 = ''
     # reset the dictionaries
     INDIVIDUALS.clear()
     FAMILIES.clear()
@@ -81,7 +82,7 @@ def parseFile(file, test=False):
             if idNum != '':
                 INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
             idNum = stripClean(args)
-            errors += checkUS22(idNum, 0)
+            errors22 += checkUS22(idNum, 0)
             name = ''
             sex = ''
             birth = ''
@@ -94,7 +95,7 @@ def parseFile(file, test=False):
             if fam != '':
                 FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
             fam = stripClean(args)
-            errors += checkUS22(fam, 1)
+            errors22 += checkUS22(fam, 1)
             marr = ''
             husb = ''
             wife = ''
@@ -163,7 +164,7 @@ def parseFile(file, test=False):
     # print all records in table format
     if not test:
         print("Individuals")
-        errors += printIndOutput()
+        errors7 = printIndOutput()
         print("Families")
         printFamOutput()
         print("\nErrors:")
@@ -172,6 +173,7 @@ def parseFile(file, test=False):
         errors += checkUS04() + "\n"
         errors += checkUS05() + "\n"
         errors += checkUS06() + "\n"
+        errors += errors7 + "\n"
         errors += checkUS08() + "\n"
         errors += checkUS09() + "\n"
         errors += checkUS10() + "\n"
@@ -186,13 +188,14 @@ def parseFile(file, test=False):
         errors += checkUS19() + "\n"
         errors += checkUS20() + "\n"
         errors += checkUS21() + "\n"
+        errors += errors22 + "\n"
         errors += checkUS23() + "\n"
         errors += checkUS24() + "\n"
         errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
         errors += "ORPHANS:\n"
         errors += checkUS33() + "\n"
-        print(errors)
+        print(errors.replace('\n\n\n', '\n\n'))
 
 def stripClean(x, spaces=True):
     ''' Cleans x by stripping @, / and spaces (optional) '''
@@ -263,9 +266,18 @@ def printFamOutput():
 
         # get the children belonging to that family
         children = 'NA'
-        if len(record.chil) > 0:
+        chilAges = {}
+        for c in record.chil:
+            # ignore that they might be dead and list in order of who was born first
+            # calculate age by day
+            chilAges[c] = (date.today() - INDIVIDUALS[c].birth).days
+        chilList = list(chilAges.keys())
+        oldest = sorted(chilList, key = lambda k: chilAges[k], reverse = True)
+
+        # print children in order of who was born first #### US 28
+        if len(oldest) > 0:
             children = '{'
-            for c in record.chil:
+            for c in oldest:
                 children += "'" + c + "', "
             # remove extra space and comma before ending bracket
             children = children[:len(children)-2] + '}'
