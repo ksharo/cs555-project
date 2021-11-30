@@ -165,7 +165,7 @@ def parseFile(file, test=False):
     if not test:
         print("Individuals")
         errors7 = printIndOutput()
-        print("Families")
+        print("\nFamilies")
         printFamOutput()
         print("\nErrors:")
         errors += "\n" + checkUS02() + "\n"
@@ -263,29 +263,33 @@ def printFamOutput():
         div = record.div
         if div == '':
             div = 'NA'
-
-        # get the children belonging to that family
-        children = 'NA'
-        chilAges = {}
-        for c in record.chil:
-            # ignore that they might be dead and list in order of who was born first
-            # calculate age by day
-            chilAges[c] = (date.today() - INDIVIDUALS[c].birth).days
-        chilList = list(chilAges.keys())
-        oldest = sorted(chilList, key = lambda k: chilAges[k], reverse = True)
-
-        # print children in order of who was born first #### US 28
-        if len(oldest) > 0:
-            children = '{'
-            for c in oldest:
-                children += "'" + c + "', "
-            # remove extra space and comma before ending bracket
-            children = children[:len(children)-2] + '}'
-
+ 
+        children = US28(record)
         # add the row to the table
         rowToAdd = [record.fam, record.marr, div, record.husb, inds[record.husb].name, record.wife, inds[record.wife].name, children]
         famTable.add_row(rowToAdd)
     print(famTable)
+
+def US28(record):
+    '''Return the children's ids in order of when they were born'''
+    # get the children belonging to that family
+    children = 'NA'
+    chilAges = {}
+    for c in record.chil:
+        # ignore that they might be dead and list in order of who was born first
+        # calculate age by day
+        chilAges[c] = (date.today() - INDIVIDUALS[c].birth).days
+    chilList = list(chilAges.keys())
+    oldest = sorted(chilList, key = lambda k: chilAges[k], reverse = True)
+
+    # print children in order of who was born first #### US 28
+    if len(oldest) > 0:
+        children = '{'
+        for c in oldest:
+            children += "'" + c + "', "
+        # remove extra space and comma before ending bracket
+        children = children[:len(children)-2] + '}'
+    return children
 
 def returnDate(args):
     ''' creates a python date object out of the date information
