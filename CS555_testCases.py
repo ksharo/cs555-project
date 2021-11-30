@@ -708,6 +708,47 @@ class TestUS27(unittest.TestCase):
     def testDeadPerson(self):
         self.assertEqual(checkUS27(1905,1,1,False,1986,7,4), 81)
 
+class TestUS28(unittest.TestCase):
+    ''' Test printing children in order of age '''
+    def testOneChild(self):
+        '''Make sure that one child still prints properly '''
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(US28(['I6000000178403660843']), "{'I6000000178403660843'}", 'Should print one child ID')
+        f.close()
+    def testNoChildren(self):
+        ''' Test that no children still prints properly '''
+        self.assertEqual(US28([]), "NA", 'Should print "NA"')
+    def testMultipleChildren(self):
+        ''' Test that children print in order of birth date '''
+        f = open('./TestFiles/US26/us26test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(US28(['I0600', 'I0617', 'I0618']), "{'I0617', 'I0618', 'I0600'}", 'Should print 3 children in order of birth')
+        f.close()
+
+class TestUS33(unittest.TestCase):
+    ''' Test orphan printing '''
+    def testNoOrphans(self):
+        '''Test that no false orphans are found.'''
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS33(), '', 'Should print no orphans.')
+        f.close()
+    
+    def testOneOrphan(self):
+        '''Test that one orphan is printed.'''
+        f = open('./TestFiles/US33/US33test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS33(), 'US33: Baby Perkins (I0700) is an orphan.\n', 'Should print one orphan.')
+        f.close()
+
+    def testMultipleOrphans(self):
+        '''Test that multiple orphans can be found.'''
+        f = open('./TestFiles/US33/US33test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS33(), 'US33: April Thomas (I6000000178401304897) is an orphan.\nUS33: August Thomas (I6000000178403634834) is an orphan.\nUS33: September Thomas (I6000000178401782906) is an orphan.\n', 'Should print multiple orphan names.')
+        f.close()
+
 if __name__ == "__main__":
     # run all the tests
     unittest.main()

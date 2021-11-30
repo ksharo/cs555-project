@@ -264,18 +264,18 @@ def printFamOutput():
         if div == '':
             div = 'NA'
  
-        children = US28(record)
+        children = US28(record.chil)
         # add the row to the table
         rowToAdd = [record.fam, record.marr, div, record.husb, inds[record.husb].name, record.wife, inds[record.wife].name, children]
         famTable.add_row(rowToAdd)
     print(famTable)
 
-def US28(record):
+def US28(records):
     '''Return the children's ids in order of when they were born'''
     # get the children belonging to that family
     children = 'NA'
     chilAges = {}
-    for c in record.chil:
+    for c in records:
         # ignore that they might be dead and list in order of who was born first
         # calculate age by day
         chilAges[c] = (date.today() - INDIVIDUALS[c].birth).days
@@ -437,7 +437,6 @@ def checkUS09():
                             error += s
     return error
 
-
 def checkUS10():
     '''Checks to ensure that both individuals involved in a marriage
        are at least 14 years old.'''
@@ -482,7 +481,6 @@ def checkUS13():
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
-
 def checkUS11():
     '''Checks if someone is married to multiple people at the same time.'''
     errors = ""
@@ -496,6 +494,7 @@ def checkUS11():
             errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
 
     return errors
+
 def checkUS12():
     """ Checks to make sure that a children's parents are not too old. """
     errors = ""
@@ -628,7 +627,6 @@ def checkUS22(args, tag):
             errors += "Error US22: Individual ID " + args + " already used.\n"
     return errors
 
-
 def checkUS23():
     '''Tests if all individuals have a unique name and birthday'''
     errors = ""
@@ -716,7 +714,6 @@ def checkUS26():
             if INDIVIDUALS[i].famc not in FAMILIES or INDIVIDUALS[i].idNum not in FAMILIES[INDIVIDUALS[i].famc].chil:
                 errors += "Error US26: Child " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[i].idNum + ") is not properly in the families records.\n"
     return errors
-
 
 def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
     today = date.today()
@@ -807,7 +804,6 @@ class Family:
         self.wife = wife
         self.chil = chil
         self.div = div
-
 
 if __name__ == "__main__":
     fileName = input("What is the name of your file? (Make sure it is in your current directory)\n")
