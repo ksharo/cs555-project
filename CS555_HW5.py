@@ -190,6 +190,8 @@ def parseFile(file, test=False):
         errors += checkUS24() + "\n"
         errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
+        errors += "ORPHANS:\n"
+        errors += checkUS33() + "\n"
         print(errors)
 
 def stripClean(x, spaces=True):
@@ -479,10 +481,7 @@ def checkUS11():
 
     return errors
 def checkUS12():
-    """
-    Checks to make sure that a children's parents are not too old.
-    :return:
-    """
+    """ Checks to make sure that a children's parents are not too old. """
     errors = ""
     for fam in FAMILIES:
         hBirth = INDIVIDUALS[FAMILIES[fam].husb].birth
@@ -505,6 +504,7 @@ def checkUS15():
         if len(children) > 15:
             errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
     return errors
+
 def checkUS14():
     '''Checks if more than 5 children at once.'''
     errors = ""
@@ -708,6 +708,31 @@ def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
         return today.year - year - ((today.month, today.day) < (month, day))
     else:
         return dYear - year - ((dMonth, dDay) < (month, day))
+
+def checkUS33():
+    '''Lists all orphans'''
+    orphans = ''
+    for x in INDIVIDUALS:
+        # if individual is not dead, calculate their age
+        record = INDIVIDUALS[x]
+        if record.death == '':
+            age = checkUS27(record.birth.year, record.birth.month, record.birth.day, True, 0, 0, 0)
+            if age < 18:
+                (dad, mom) = getParents(x)
+                # if parents' record exists...
+                if (dad != ''):
+                    # check if dad is dead
+                    if INDIVIDUALS[dad].death == '':
+                        pass
+                    else:
+                        if (mom != ''):
+                            # check if mom is dead
+                            if INDIVIDUALS[mom].death == '':
+                                pass
+                            else:
+                                orphans += "US33: " + stripClean(record.name, False) + "(" + x + ") is an orphan.\n"
+    return orphans
+
 def areCousins(p1, p2):
     '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
     (dad1, mom1) = getParents(p1)
@@ -741,8 +766,6 @@ def getParents(p):
         if p in FAMILIES[fam].chil:
             return(FAMILIES[fam].husb, FAMILIES[fam].wife)
     return ('', '')
-
-
 
 ### CLASSES ###
 
