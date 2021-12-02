@@ -193,6 +193,8 @@ def parseFile(file, test=False):
         errors += checkUS24() + "\n"
         errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
+        errors += "DECEASED:\n"
+        errors += checkUS29() + "\n"
         errors += "ORPHANS:\n"
         errors += checkUS33() + "\n"
         print(errors.replace('\n\n\n', '\n\n'))
@@ -721,6 +723,16 @@ def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
         return today.year - year - ((today.month, today.day) < (month, day))
     else:
         return dYear - year - ((dMonth, dDay) < (month, day))
+
+def checkUS29():
+    '''List Deceased'''
+    deceased = ""
+    for ind in INDIVIDUALS:
+        if INDIVIDUALS[ind].death == "":
+            pass
+        else:
+            deceased += "US29: " + stripClean(INDIVIDUALS[ind].name, False) + "(" + ind + ") is deceased.\n"
+    return deceased
 
 def checkUS33():
     '''Lists all orphans'''
