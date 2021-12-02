@@ -5,6 +5,7 @@
 '''
 
 from datetime import date
+import datetime
 from os import error
 # pip install -U prettytable
 from prettytable import PrettyTable
@@ -197,8 +198,16 @@ def parseFile(file, test=False):
         errors += checkUS29() + "\n"
         errors += "LIVING MARRIED:\n"
         errors += checkUS30() + "\n"
+        errors += "LIVING SINGLE:\n"
+        errors += checkUS31() + "\n"
+        errors += "MULTIPLE BIRTHS:\n"
+        errors += checkUS32() + "\n"
         errors += "ORPHANS:\n"
         errors += checkUS33() + "\n"
+        errors += "LARGE AGE DIFFERENCES:\n"
+        errors += checkUS34() + "\n"
+        errors += "RECENT BIRTHS:\n"
+        errors += checkUS35() + "\n"
         print(errors.replace('\n\n\n', '\n\n'))
 
 def stripClean(x, spaces=True):
@@ -732,8 +741,8 @@ def checkUS31():
         indi = INDIVIDUALS[i]
         if indi.death == '':
             age = checkUS27(indi.birth.year, indi.birth.month, indi.birth.day, True, 0, 0, 0)
-            if age > 30 and indi.fams == "" :
-                    unmarr_livin += "US31: " + stripClean(indi.name, False) +  " have never married.\n"
+            if age > 30 and indi.fams == "":
+                    unmarr_livin += "US31: " + stripClean(indi.name, False) +  "has never married.\n"
 
     return unmarr_livin
 
@@ -741,15 +750,17 @@ def checkUS32():
     '''
     Checks and returns if there is any redundancy in the birth dates.
     '''
-    birthdays = []
-    for fam in FAMILIES:
-        f = FAMILIES[fam]
-        for i in range(0, len(f.chil) - 1):
-            bd1 = INDIVIDUALS[f.chil[i]].birth
-            for j in range(i + 1, len(f.chil)):
-                bd2 = INDIVIDUALS[f.chil[j]].birth
-                if bd1 == bd2:
-                        birthdays += "US32: " + stripClean(i.birth, False) +  " is a multiple birth date.\n"
+    birthdays = ""
+    for i in INDIVIDUALS:
+        bd1 = INDIVIDUALS[i].birth
+        for j in INDIVIDUALS:
+            if i == j:
+                continue
+            bd2 = INDIVIDUALS[j].birth
+            if bd1 == bd2:
+                toAdd = "US32: " + str(INDIVIDUALS[i].birth) +  " is a multiple birth date.\n"
+                if toAdd not in birthdays:
+                    birthdays += toAdd
     return birthdays
 
 def checkUS29():
@@ -796,7 +807,36 @@ def checkUS33():
                             else:
                                 orphans += "US33: " + stripClean(record.name, False) + "(" + x + ") is an orphan.\n"
     return orphans
-
+def checkUS34():
+    couples = ""
+    for f in FAMILIES:
+        husb = INDIVIDUALS[FAMILIES[f].husb]
+        wife = INDIVIDUALS[FAMILIES[f].wife]
+        hAge = 0
+        wAge = 0
+        if husb.death == "":
+            hAge = checkUS27(husb.birth.year, husb.birth.month, husb.birth.day, False, 0,0,0)
+        else:
+            hAge = checkUS27(husb.birth.year, husb.birth.month, husb.birth.day, True, husb.death.year, husb.death.month, husb.death.day)
+        if wife.death == "":
+            wAge = checkUS27(wife.birth.year, wife.birth.month, wife.birth.day, wife.death == "", 0, 0, 0)
+        else:
+            wAge = checkUS27(wife.birth.year, wife.birth.month, wife.birth.day, True, wife.death.year, wife.death.month, wife.death.day)
+        if hAge > 2*wAge:
+            couples += "US34: Husband "+stripClean(husb.name, False) + "(" + str(husb.idNum)+"), age "+ str(hAge) +" is more than twice as old as his wife "+stripClean(wife.name, False) + "(" + str(wife.idNum)+"), age "+ str(wAge) +".\n"
+        if wAge > 2*hAge:
+            couples += "US34: Wife "+stripClean(wife.name, False) + "(" + str(wife.idNum)+"), age "+ str(wAge) +" is more than twice as old as her husband "+stripClean(husb.name, False) + "(" + str(husb.idNum)+"), age "+ str(hAge) +".\n"
+    return couples
+def checkUS35():
+    newborns = ""
+    curr = datetime.datetime.now()
+    curr = date(curr.year, curr.month, curr.day)
+    for i in INDIVIDUALS:
+        birth = date(INDIVIDUALS[i].birth.year, INDIVIDUALS[i].birth.month, INDIVIDUALS[i].birth.day)
+        dif = (curr-birth).days
+        if dif <= 30:
+            newborns += "US35: "+stripClean(INDIVIDUALS[i].name, False) + "("+str(INDIVIDUALS[i].idNum)+") is less than 30 days old.\n"
+    return newborns
 def areCousins(p1, p2):
     '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
     (dad1, mom1) = getParents(p1)

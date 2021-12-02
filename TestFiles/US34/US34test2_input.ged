@@ -1,0 +1,23 @@
+0 NOTE https://github.com/ksharo/cs555-project.git
+0 NOTE Kaitlyn Sharo, Logan Rechler, Mathieu Nagle
+0 @I0417@ INDI
+1 NAME Leslie /Knope/
+1 SEX F
+1 BIRT
+2 DATE 4 FEB 2002
+1 DEAT
+2 DATE 5 FEB 2039
+1 FAMS @F4@
+0 @I02319@ INDI
+1 NAME Ben /Wyatt/
+1 SEX M
+1 BIRT
+2 DATE 4 FEB 1900
+1 DEAT
+2 DATE 5 FEB 2038
+1 FAMS @F4@
+0 @F4@ FAM
+1 MARR
+2 DATE 12 DEC 2014
+1 HUSB @I02319@
+1 WIFE @I0417@

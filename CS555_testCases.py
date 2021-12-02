@@ -730,30 +730,30 @@ class TestUS31(unittest.TestCase):
     ''' Test orphan printing '''
     def testNoSingles(self):
         '''Test that no singles are found.'''
-        f = open('./TestFiles/us31test2_input.ged', 'r')
+        f = open('./TestFiles/US31/us31test2_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS31(), '', 'Should print nothing as there were no singles.')
         f.close()
     def testSingles(self):
         '''Test that there are singles found.'''
-        f = open('./TestFiles/us31test3_input.ged', 'r')
+        f = open('./TestFiles/US31/us31test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS31(), 'US31: Elijah Thomas have never married.\n', 'Should print singles.')
+        self.assertEqual(checkUS31(), 'US31: September Thomas has never married.\n', 'Should print singles.')
         f.close()
 
 class TestUS32(unittest.TestCase):
     ''' Test orphan printing '''
     def testNoMulBirth(self):
         '''Test that no singles are found.'''
-        f = open('./TestFiles/us31test2_input.ged', 'r')
+        f = open('./TestFiles/US32/us32test2_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS32(), '', 'Should print nothing as there were no multiple births.')
         f.close()
     def testMulBirth(self):
         '''Test that there are singles found.'''
-        f = open('./TestFiles/us31test3_input.ged', 'r')
+        f = open('./TestFiles/US32/us32test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS32(), 'US32: 17 JAN 2021 is a multiple birthdate.\n', 'should print multiple birth dates.')
+        self.assertEqual(checkUS32(), 'US32: 2021-01-17 is a multiple birth date.\n', 'should print multiple birth dates.')
         f.close()
 
 class TestUS30(unittest.TestCase):
@@ -800,6 +800,35 @@ class TestUS33(unittest.TestCase):
         f = open('./TestFiles/US33/US33test2_input.ged', 'r')
         parseFile(f, True)
         self.assertEqual(checkUS33(), 'US33: April Thomas (I6000000178401304897) is an orphan.\nUS33: August Thomas (I6000000178403634834) is an orphan.\nUS33: September Thomas (I6000000178401782906) is an orphan.\n', 'Should print multiple orphan names.')
+        f.close()
+
+class testUS34(unittest.TestCase):
+    def testNoLargeDifs(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS33(), '', 'Should print no orphans.')
+        f.close()
+    def testLargeDifs(self):
+        f = open('./TestFiles/US34/US34test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS34(), "US34: Husband Ben Wyatt (I02319), age 121 is more than twice as old as his wife Leslie Knope (I0417), age 19.\n")
+        f.close()
+    def testExactlyDouble(self):
+        f = open('./TestFiles/US34/US34test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS34(), "")
+        f.close()
+
+class testUS35(unittest.TestCase):
+    def testNoRecentBirths(self):
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS33(), '', 'Should print no orphans.')
+        f.close()
+    def testRecentBirths(self):
+        f = open('./TestFiles/US35/US35test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS35(), "US35: Leslie Knope (I0417) is less than 30 days old.\n")
         f.close()
 
 if __name__ == "__main__":
