@@ -193,6 +193,8 @@ def parseFile(file, test=False):
         errors += checkUS24() + "\n"
         errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
+        errors += "DECEASED:\n"
+        errors += checkUS29() + "\n"
         errors += "ORPHANS:\n"
         errors += checkUS33() + "\n"
         print(errors.replace('\n\n\n', '\n\n'))
@@ -747,6 +749,16 @@ def checkUS32():
                 if bd1 == bd2:
                         birthdays += "US32: " + stripClean(i.birth, False) +  " is a multiple birth date.\n"
     return birthdays
+
+def checkUS29():
+    '''List Deceased'''
+    deceased = ""
+    for ind in INDIVIDUALS:
+        if INDIVIDUALS[ind].death == "":
+            pass
+        else:
+            deceased += "US29: " + stripClean(INDIVIDUALS[ind].name, False) + "(" + ind + ") is deceased.\n"
+    return deceased
 
 def checkUS33():
     '''Lists all orphans'''
