@@ -33,6 +33,7 @@ def parseFile(file, test=False):
     '''Parses a GEDCOM file based on the specifications given in the
         homework description. if test==True, don't print'''
     errors = ""
+    errors22 = ''
     # reset the dictionaries
     INDIVIDUALS.clear()
     FAMILIES.clear()
@@ -81,7 +82,7 @@ def parseFile(file, test=False):
             if idNum != '':
                 INDIVIDUALS[idNum] = Record(idNum, name, sex, birth, death, famc, fams)
             idNum = stripClean(args)
-            errors += checkUS22(idNum, 0)
+            errors22 += checkUS22(idNum, 0)
             name = ''
             sex = ''
             birth = ''
@@ -94,7 +95,7 @@ def parseFile(file, test=False):
             if fam != '':
                 FAMILIES[fam] = Family(fam, marr, husb, wife, chil, div)
             fam = stripClean(args)
-            errors += checkUS22(fam, 1)
+            errors22 += checkUS22(fam, 1)
             marr = ''
             husb = ''
             wife = ''
@@ -163,8 +164,8 @@ def parseFile(file, test=False):
     # print all records in table format
     if not test:
         print("Individuals")
-        errors += printIndOutput()
-        print("Families")
+        errors7 = printIndOutput()
+        print("\nFamilies")
         printFamOutput()
         print("\nErrors:")
         errors += "\n" + checkUS02() + "\n"
@@ -172,6 +173,7 @@ def parseFile(file, test=False):
         errors += checkUS04() + "\n"
         errors += checkUS05() + "\n"
         errors += checkUS06() + "\n"
+        errors += errors7 + "\n"
         errors += checkUS08() + "\n"
         errors += checkUS09() + "\n"
         errors += checkUS10() + "\n"
@@ -186,11 +188,14 @@ def parseFile(file, test=False):
         errors += checkUS19() + "\n"
         errors += checkUS20() + "\n"
         errors += checkUS21() + "\n"
+        errors += errors22 + "\n"
         errors += checkUS23() + "\n"
         errors += checkUS24() + "\n"
         errors += checkUS25() + "\n"
         errors += checkUS26() + "\n"
-        print(errors)
+        errors += "ORPHANS:\n"
+        errors += checkUS33() + "\n"
+        print(errors.replace('\n\n\n', '\n\n'))
 
 def stripClean(x, spaces=True):
     ''' Cleans x by stripping @, / and spaces (optional) '''
@@ -259,19 +264,32 @@ def printFamOutput():
         if div == '':
             div = 'NA'
 
-        # get the children belonging to that family
-        children = 'NA'
-        if len(record.chil) > 0:
-            children = '{'
-            for c in record.chil:
-                children += "'" + c + "', "
-            # remove extra space and comma before ending bracket
-            children = children[:len(children)-2] + '}'
-
+        children = US28(record.chil)
         # add the row to the table
         rowToAdd = [record.fam, record.marr, div, record.husb, inds[record.husb].name, record.wife, inds[record.wife].name, children]
         famTable.add_row(rowToAdd)
     print(famTable)
+
+def US28(records):
+    '''Return the children's ids in order of when they were born'''
+    # get the children belonging to that family
+    children = 'NA'
+    chilAges = {}
+    for c in records:
+        # ignore that they might be dead and list in order of who was born first
+        # calculate age by day
+        chilAges[c] = (date.today() - INDIVIDUALS[c].birth).days
+    chilList = list(chilAges.keys())
+    oldest = sorted(chilList, key = lambda k: chilAges[k], reverse = True)
+
+    # print children in order of who was born first #### US 28
+    if len(oldest) > 0:
+        children = '{'
+        for c in oldest:
+            children += "'" + c + "', "
+        # remove extra space and comma before ending bracket
+        children = children[:len(children)-2] + '}'
+    return children
 
 def returnDate(args):
     ''' creates a python date object out of the date information
@@ -419,7 +437,6 @@ def checkUS09():
                             error += s
     return error
 
-
 def checkUS10():
     '''Checks to ensure that both individuals involved in a marriage
        are at least 14 years old.'''
@@ -464,7 +481,6 @@ def checkUS13():
                     errors += 'Anomaly US13: Birth dates of ' + stripClean(INDIVIDUALS[children[j]].name, False) + '(' + INDIVIDUALS[children[j]].idNum + ') and ' + stripClean(INDIVIDUALS[children[i]].name, False) + '(' + INDIVIDUALS[children[i]].idNum + ') are ' + str(days) + ' days apart.\n'
     return errors
 
-
 def checkUS11():
     '''Checks if someone is married to multiple people at the same time.'''
     errors = ""
@@ -478,11 +494,9 @@ def checkUS11():
             errors += 'Anomaly US11: Family ' + stripClean(f.fam) + ' has multiple husbands.\n'
 
     return errors
+
 def checkUS12():
-    """
-    Checks to make sure that a children's parents are not too old.
-    :return:
-    """
+    """ Checks to make sure that a children's parents are not too old. """
     errors = ""
     for fam in FAMILIES:
         hBirth = INDIVIDUALS[FAMILIES[fam].husb].birth
@@ -505,6 +519,7 @@ def checkUS15():
         if len(children) > 15:
             errors += 'Anomaly US15: Family ' + stripClean(f.fam) + ' has ' + str(len(children)) + ' children.\n'
     return errors
+
 def checkUS14():
     '''Checks if more than 5 children at once.'''
     errors = ""
@@ -612,7 +627,6 @@ def checkUS22(args, tag):
             errors += "Error US22: Individual ID " + args + " already used.\n"
     return errors
 
-
 def checkUS23():
     '''Tests if all individuals have a unique name and birthday'''
     errors = ""
@@ -628,7 +642,6 @@ def checkUS23():
             if name1 == name2:
                 if birthdays[i] == birthdays[j]:
                     errors += "Error US23: " + stripClean(name1, False) + "appears in the file multiple times.\n"
-                    print('error')
     return errors
 
 def checkUS24():
@@ -671,7 +684,9 @@ def checkUS25():
                 chil_bd2 = INDIVIDUALS[f.chil[j]].birth
                 if chil_name1 == chil_name2:
                     if chil_bd1 == chil_bd2:
-                        errors += "Error US25: " + stripClean(chil_name1, False) +"and "+ str(chil_bd1) + " appears in the file multiple times.\n"
+                        s = "Error US25: " + stripClean(chil_name1, False) +"and "+ str(chil_bd1) + " appears in the file multiple times.\n"
+                        if s not in errors:
+                            errors += s
                 else:
                     errors += ""
     return errors
@@ -700,13 +715,37 @@ def checkUS26():
                 errors += "Error US26: Child " + stripClean(INDIVIDUALS[i].name, False) + "(" + INDIVIDUALS[i].idNum + ") is not properly in the families records.\n"
     return errors
 
-
 def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
     today = date.today()
     if alive:
         return today.year - year - ((today.month, today.day) < (month, day))
     else:
         return dYear - year - ((dMonth, dDay) < (month, day))
+
+def checkUS33():
+    '''Lists all orphans'''
+    orphans = ''
+    for x in INDIVIDUALS:
+        # if individual is not dead, calculate their age
+        record = INDIVIDUALS[x]
+        if record.death == '':
+            age = checkUS27(record.birth.year, record.birth.month, record.birth.day, True, 0, 0, 0)
+            if age < 18:
+                (dad, mom) = getParents(x)
+                # if parents' record exists...
+                if (dad != ''):
+                    # check if dad is dead
+                    if INDIVIDUALS[dad].death == '':
+                        pass
+                    else:
+                        if (mom != ''):
+                            # check if mom is dead
+                            if INDIVIDUALS[mom].death == '':
+                                pass
+                            else:
+                                orphans += "US33: " + stripClean(record.name, False) + "(" + x + ") is an orphan.\n"
+    return orphans
+
 def areCousins(p1, p2):
     '''Checks if p1 and p2 are cousins. Returns true if they are, false otherwise.'''
     (dad1, mom1) = getParents(p1)
@@ -741,8 +780,6 @@ def getParents(p):
             return(FAMILIES[fam].husb, FAMILIES[fam].wife)
     return ('', '')
 
-
-
 ### CLASSES ###
 
 class Record:
@@ -767,7 +804,6 @@ class Family:
         self.wife = wife
         self.chil = chil
         self.div = div
-
 
 if __name__ == "__main__":
     fileName = input("What is the name of your file? (Make sure it is in your current directory)\n")
