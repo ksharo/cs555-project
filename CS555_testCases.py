@@ -726,27 +726,34 @@ class TestUS28(unittest.TestCase):
         self.assertEqual(US28(['I0600', 'I0617', 'I0618']), "{'I0617', 'I0618', 'I0600'}", 'Should print 3 children in order of birth')
         f.close()
 
-class TestUS29(unittest.TestCase):
-    ''' Test deceased listing '''
-    def testNoDeceased(self):
-        '''Tests when there are no deceased'''
-        f = open('./TestFiles/US29/US29test1_input.ged', 'r')
+class TestUS31(unittest.TestCase):
+    ''' Test orphan printing '''
+    def testNoSingles(self):
+        '''Test that no singles are found.'''
+        f = open('./TestFiles/us31test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS29(), '', 'Should print no deceased.')
+        self.assertEqual(checkUS31(), '', 'Should print nothing as there were no singles.')
+        f.close()
+    def testSingles(self):
+        '''Test that there are singles found.'''
+        f = open('./TestFiles/us31test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS31(), 'US31: Elijah Thomas have never married.\n', 'Should print singles.')
         f.close()
 
-    def testOneDeceased(self):
-        '''Tests one deceased'''
-        f = open('./TestFiles/US29/US29test2_input.ged', 'r')
+class TestUS32(unittest.TestCase):
+    ''' Test orphan printing '''
+    def testNoMulBirth(self):
+        '''Test that no singles are found.'''
+        f = open('./TestFiles/us31test2_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS29(), 'US29: Julius Lexus (I6000000178403393861) is deceased.\n', 'Should print one deceased.')
+        self.assertEqual(checkUS32(), '', 'Should print nothing as there were no multiple births.')
         f.close()
-
-    def testMultipleDeceased(self):
-        '''Tests multiple deceased'''
-        f = open('./TestFiles/valid.ged', 'r')
+    def testMulBirth(self):
+        '''Test that there are singles found.'''
+        f = open('./TestFiles/us31test3_input.ged', 'r')
         parseFile(f, True)
-        self.assertEqual(checkUS29(), 'US29: Summer Lexus (I6000000178402244920) is deceased.\nUS29: Julius Lexus (I6000000178403393861) is deceased.\nUS29: Sarah Alanson (I6000000178401456922) is deceased.\n', 'Should print three deceased.')
+        self.assertEqual(checkUS32(), 'US32: 17 JAN 2021 is a multiple birthdate.\n', 'should print multiple birth dates.')
         f.close()
 
 class TestUS30(unittest.TestCase):
