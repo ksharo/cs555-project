@@ -721,6 +721,32 @@ def checkUS27(year, month, day, alive, dYear, dMonth, dDay):
         return today.year - year - ((today.month, today.day) < (month, day))
     else:
         return dYear - year - ((dMonth, dDay) < (month, day))
+def checkUS31():
+    '''Lists all living individuals over 30 who have never married'''
+    unmarr_livin = ''
+    for i in INDIVIDUALS:
+        indi = INDIVIDUALS[i]
+        if indi.death == '':
+            age = checkUS27(indi.birth.year, indi.birth.month, indi.birth.day, True, 0, 0, 0)
+            if age > 30 and indi.fams == "" :
+                    unmarr_livin += "US31: " + stripClean(indi.name, False) +  " have never married.\n"
+
+    return unmarr_livin
+
+def checkUS32():
+    '''
+    Checks and returns if there is any redundancy in the birth dates.
+    '''
+    birthdays = []
+    for fam in FAMILIES:
+        f = FAMILIES[fam]
+        for i in range(0, len(f.chil) - 1):
+            bd1 = INDIVIDUALS[f.chil[i]].birth
+            for j in range(i + 1, len(f.chil)):
+                bd2 = INDIVIDUALS[f.chil[j]].birth
+                if bd1 == bd2:
+                        birthdays += "US32: " + stripClean(i.birth, False) +  " is a multiple birth date.\n"
+    return birthdays
 
 def checkUS33():
     '''Lists all orphans'''

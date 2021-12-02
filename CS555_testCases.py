@@ -726,6 +726,36 @@ class TestUS28(unittest.TestCase):
         self.assertEqual(US28(['I0600', 'I0617', 'I0618']), "{'I0617', 'I0618', 'I0600'}", 'Should print 3 children in order of birth')
         f.close()
 
+class TestUS31(unittest.TestCase):
+    ''' Test orphan printing '''
+    def testNoSingles(self):
+        '''Test that no singles are found.'''
+        f = open('./TestFiles/us31test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS31(), '', 'Should print nothing as there were no singles.')
+        f.close()
+    def testSingles(self):
+        '''Test that there are singles found.'''
+        f = open('./TestFiles/us31test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS31(), 'US31: Elijah Thomas have never married.\n', 'Should print singles.')
+        f.close()
+
+class TestUS32(unittest.TestCase):
+    ''' Test orphan printing '''
+    def testNoMulBirth(self):
+        '''Test that no singles are found.'''
+        f = open('./TestFiles/us31test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS32(), '', 'Should print nothing as there were no multiple births.')
+        f.close()
+    def testMulBirth(self):
+        '''Test that there are singles found.'''
+        f = open('./TestFiles/us31test3_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS32(), 'US32: 17 JAN 2021 is a multiple birthdate.\n', 'should print multiple birth dates.')
+        f.close()
+
 class TestUS33(unittest.TestCase):
     ''' Test orphan printing '''
     def testNoOrphans(self):
