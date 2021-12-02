@@ -749,6 +749,29 @@ class TestUS29(unittest.TestCase):
         self.assertEqual(checkUS29(), 'US29: Summer Lexus (I6000000178402244920) is deceased.\nUS29: Julius Lexus (I6000000178403393861) is deceased.\nUS29: Sarah Alanson (I6000000178401456922) is deceased.\n', 'Should print three deceased.')
         f.close()
 
+class TestUS30(unittest.TestCase):
+    ''' Test living married listing '''
+    def testNoLivingMarried(self):
+        '''Tests when there are no living married'''
+        f = open('./TestFiles/US30/US30test1_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS30(), '', 'Should print no living married.')
+        f.close()
+
+    def testOneLivingMarried(self):
+        '''Tests one living married'''
+        f = open('./TestFiles/US30/US30test2_input.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS30(), 'US30: Elijah Thomas (I6000000178400484002) is married in family F6000000178403254865 and living.\n', 'Should print one living married.')
+        f.close()
+
+    def testMultipleLivingMarried(self):
+        '''Tests multiple deceased'''
+        f = open('./TestFiles/valid.ged', 'r')
+        parseFile(f, True)
+        self.assertEqual(checkUS30(), 'US30: Elijah Thomas (I6000000178400484002) is married in family F6000000178403254865 and living.\nUS30: Jennifer Thomas (I6000000178403254861) is married in family F6000000178403254865 and living.\nUS30: Winter Thomas (I6000000178403503840) is married in family F6000000178403503845 and living.\nUS30: Ned Thomas (I6000000178403862823) is married in family F6000000178403503845 and living.\nUS30: Lloyd Alanson (I6000000178401748954) is married in family F6000000178401748958 and living.\nUS30: Lloyd Alanson (I6000000178401748954) is married in family F6000000178403660847 and living.\n', 'Should print six living married.')
+        f.close()
+
 class TestUS33(unittest.TestCase):
     ''' Test orphan printing '''
     def testNoOrphans(self):

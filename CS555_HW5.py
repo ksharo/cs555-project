@@ -195,6 +195,8 @@ def parseFile(file, test=False):
         errors += checkUS26() + "\n"
         errors += "DECEASED:\n"
         errors += checkUS29() + "\n"
+        errors += "LIVING MARRIED:\n"
+        errors += checkUS30() + "\n"
         errors += "ORPHANS:\n"
         errors += checkUS33() + "\n"
         print(errors.replace('\n\n\n', '\n\n'))
@@ -733,6 +735,17 @@ def checkUS29():
         else:
             deceased += "US29: " + stripClean(INDIVIDUALS[ind].name, False) + "(" + ind + ") is deceased.\n"
     return deceased
+
+def checkUS30():
+    '''List living married'''
+    livingMarried = ""
+    for ind in INDIVIDUALS:
+        if INDIVIDUALS[ind].death == "":
+            for fam in FAMILIES:
+                if ind == FAMILIES[fam].husb or ind == FAMILIES[fam].wife:
+                    if FAMILIES[fam].div == "":
+                        livingMarried += "US30: " + stripClean(INDIVIDUALS[ind].name, False) + "(" + ind + ") is married in family " + fam + " and living.\n"
+    return livingMarried
 
 def checkUS33():
     '''Lists all orphans'''
